@@ -1,0 +1,161 @@
+import logging
+import os
+import threading
+import time
+
+import kopf
+
+from calunga_release_watcher.config import (
+    APPLICATION,
+    LBL_APPLICATION,
+    LBL_PIPELINE_TYPE,
+    LBL_RELEASE_NS,
+    RELEASE_NAMESPACE,
+    TENANT_NAMESPACE,
+)
+from calunga_release_watcher.tracker import PipelineTracker
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-5s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
+tracker = PipelineTracker()
+
+SYNC_GRACE_PERIOD = 15
+
+
+def _in_namespace(ns: str):
+    return lambda namespace, **_: namespace == ns
+
+
+def _delayed_set_live():
+    time.sleep(SYNC_GRACE_PERIOD)
+    tracker.set_live()
+
+
+# ---------------------------------------------------------------------------
+# Build PipelineRuns
+# ---------------------------------------------------------------------------
+BUILD_FILTER = {LBL_PIPELINE_TYPE: "build", LBL_APPLICATION: APPLICATION}
+
+
+@kopf.on.resume("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def resume_build_pipelinerun(body, **_):
+    tracker.on_build_pipelinerun(body)
+
+
+@kopf.on.create("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+@kopf.on.update("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def handle_build_pipelinerun(body, **_):
+    tracker.on_build_pipelinerun(body)
+
+
+# ---------------------------------------------------------------------------
+# Test PipelineRuns
+# ---------------------------------------------------------------------------
+TEST_FILTER = {LBL_PIPELINE_TYPE: "test", LBL_APPLICATION: APPLICATION}
+
+
+@kopf.on.resume("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def resume_test_pipelinerun(body, **_):
+    tracker.on_test_pipelinerun(body)
+
+
+@kopf.on.create("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+@kopf.on.update("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def handle_test_pipelinerun(body, **_):
+    tracker.on_test_pipelinerun(body)
+
+
+# ---------------------------------------------------------------------------
+# Snapshots
+# ---------------------------------------------------------------------------
+
+
+SNAPSHOT_FILTER = {LBL_APPLICATION: APPLICATION}
+
+
+@kopf.on.resume("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def resume_snapshot(body, **_):
+    tracker.on_snapshot(body)
+
+
+@kopf.on.create("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+@kopf.on.update("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def handle_snapshot(body, **_):
+    tracker.on_snapshot(body)
+
+
+# ---------------------------------------------------------------------------
+# Releases
+# ---------------------------------------------------------------------------
+
+
+RELEASE_FILTER = {LBL_APPLICATION: APPLICATION}
+
+
+@kopf.on.resume("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def resume_release(body, **_):
+    tracker.on_release(body)
+
+
+@kopf.on.create("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+@kopf.on.update("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def handle_release(body, **_):
+    tracker.on_release(body)
+
+
+# ---------------------------------------------------------------------------
+# Release (managed) PipelineRuns — different namespace
+# ---------------------------------------------------------------------------
+MANAGED_FILTER = {LBL_PIPELINE_TYPE: "managed", LBL_RELEASE_NS: TENANT_NAMESPACE}
+
+
+@kopf.on.resume("tekton.dev", "v1", "pipelineruns", labels=MANAGED_FILTER, when=_in_namespace(RELEASE_NAMESPACE))
+def resume_release_pipelinerun(body, **_):
+    tracker.on_release_pipelinerun(body)
+
+
+@kopf.on.create("tekton.dev", "v1", "pipelineruns", labels=MANAGED_FILTER, when=_in_namespace(RELEASE_NAMESPACE))
+@kopf.on.update("tekton.dev", "v1", "pipelineruns", labels=MANAGED_FILTER, when=_in_namespace(RELEASE_NAMESPACE))
+def handle_release_pipelinerun(body, **_):
+    tracker.on_release_pipelinerun(body)
+
+
+# ---------------------------------------------------------------------------
+# Operator startup config — watch both namespaces
+# ---------------------------------------------------------------------------
+
+
+@kopf.on.startup()
+def configure(settings: kopf.OperatorSettings, **_):
+    settings.watching.server_timeout = 270
+    settings.persistence.finalizer = ""
+    settings.scanning.disabled = True
+    settings.posting.enabled = False
+    settings.peering.standalone = True
+    logger.info(
+        "Starting controller — resume sync grace period: %ds. "
+        "Events during this window will be processed silently.",
+        SYNC_GRACE_PERIOD,
+    )
+    threading.Thread(target=_delayed_set_live, daemon=True).start()
+
+
+@kopf.on.login()
+def login(**_):
+    token = os.environ.get("K8S_TOKEN", "")
+    server = os.environ.get("K8S_API_URL", "")
+    if token and server:
+        logger.info("Using remote cluster: %s", server)
+        return kopf.ConnectionInfo(
+            server=server,
+            token=token,
+            ca_path=None,
+            insecure=True,
+            priority=0,
+        )
+    return kopf.login_via_client(**_)

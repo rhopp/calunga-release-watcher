@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "calunga-release-watcher"
+version = "0.1.0"
+description = "Pipeline watchdog for Konflux — tracks build/test/release pipelines and reports failures"
+requires-python = ">=3.12"
+dependencies = [
+    "kopf>=1.44",
+    "kubernetes>=28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

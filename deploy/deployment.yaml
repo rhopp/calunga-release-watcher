@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calunga-release-watcher
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: calunga-release-watcher
+  template:
+    metadata:
+      labels:
+        app: calunga-release-watcher
+    spec:
+      containers:
+        - name: controller
+          image: quay.io/rhopp/calunga-release-watcher:latest
+          env:
+            - name: TENANT_NAMESPACE
+              value: calunga-tenant
+            - name: RELEASE_NAMESPACE
+              value: rhtap-releng-tenant
+            - name: K8S_API_URL
+              value: ""  # Set to your Kubernetes API server URL
+            - name: K8S_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: calunga-release-watcher-secrets
+                  key: k8s-token
+            - name: SLACK_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: calunga-release-watcher-secrets
+                  key: slack-token
+                  optional: true
+            - name: SLACK_CHANNEL
+              value: "UGZCNQU69"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

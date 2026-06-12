@@ -1,0 +1,120 @@
+Name: calunga-v2-index-main-20260611-133255-000-eb63f46-m4rdk
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  annotations:
+    pac.test.appstudio.openshift.io/branch: main
+    pac.test.appstudio.openshift.io/cancel-in-progress: 'false'
+    pac.test.appstudio.openshift.io/check-run-id: '80810777313'
+    pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
+      "gRepo": "pipelines-as-code"}'
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-pqoysw
+    pac.test.appstudio.openshift.io/git-provider: github
+    pac.test.appstudio.openshift.io/installation-id: '85616742'
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.kflux-prd-rh03.nnv1.p1.openshiftapps.com/ns/calunga-tenant/pipelinerun/calunga-v2-index-main-on-push-2l5j2
+    pac.test.appstudio.openshift.io/max-keep-runs: '3'
+    pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
+      == "main"
+    pac.test.appstudio.openshift.io/original-prname: calunga-v2-index-main-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/calungaproject/index
+    pac.test.appstudio.openshift.io/repository: calunga-v2-index-main
+    pac.test.appstudio.openshift.io/scm-reporting-plr-started: 'true'
+    pac.test.appstudio.openshift.io/sender: github-actions[bot]
+    pac.test.appstudio.openshift.io/sha: eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    pac.test.appstudio.openshift.io/sha-title: Automatic build grpcio==1.81.1
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/calungaproject/index/commit/eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/main
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/calungaproject/index
+    pac.test.appstudio.openshift.io/state: completed
+    pac.test.appstudio.openshift.io/url-org: calungaproject
+    pac.test.appstudio.openshift.io/url-repository: index
+  creationTimestamp: '2026-06-11T13:45:22Z'
+  finalizers:
+  - appstudio.redhat.com/release-finalizer
+  generateName: calunga-v2-index-main-20260611-133255-000-eb63f46-
+  generation: 1
+  labels:
+    appstudio.openshift.io/application: calunga-v2-index-main
+    appstudio.openshift.io/build-pipelinerun: calunga-v2-index-main-on-push-2l5j2
+    appstudio.openshift.io/component: calunga-v2-index-main
+    pac.test.appstudio.openshift.io/cancel-in-progress: 'false'
+    pac.test.appstudio.openshift.io/check-run-id: '80810777313'
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/original-prname: calunga-v2-index-main-on-push
+    pac.test.appstudio.openshift.io/repository: calunga-v2-index-main
+    pac.test.appstudio.openshift.io/sha: eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    pac.test.appstudio.openshift.io/state: completed
+    pac.test.appstudio.openshift.io/url-org: calungaproject
+    pac.test.appstudio.openshift.io/url-repository: index
+    release.appstudio.openshift.io/automated: 'true'
+    release.appstudio.openshift.io/releasePlan: calunga
+    release.appstudio.openshift.io/snapshot: calunga-v2-index-main-20260611-133255-000
+  name: calunga-v2-index-main-20260611-133255-000-eb63f46-m4rdk
+  namespace: calunga-tenant
+  resourceVersion: '2005153778'
+  uid: aef81ec1-9af9-4d48-8798-8c8e3bea8cd3
+spec:
+  gracePeriodDays: 7
+  releasePlan: calunga
+  snapshot: calunga-v2-index-main-20260611-133255-000
+status:
+  attribution:
+    author: lucarval
+    standingAuthorization: true
+  automated: true
+  completionTime: '2026-06-11T13:59:40Z'
+  conditions:
+  - lastTransitionTime: '2026-06-11T13:59:40Z'
+    message: ''
+    reason: Succeeded
+    status: 'True'
+    type: Released
+  - lastTransitionTime: '2026-06-11T13:45:22Z'
+    message: ''
+    reason: Succeeded
+    status: 'True'
+    type: Validated
+  - lastTransitionTime: '2026-06-11T13:45:22Z'
+    message: ''
+    reason: Skipped
+    status: 'True'
+    type: TenantCollectorsPipelineProcessed
+  - lastTransitionTime: '2026-06-11T13:45:22Z'
+    message: ''
+    reason: Skipped
+    status: 'True'
+    type: ManagedCollectorsPipelineProcessed
+  - lastTransitionTime: '2026-06-11T13:45:22Z'
+    message: ''
+    reason: Skipped
+    status: 'True'
+    type: TenantPipelineProcessed
+  - lastTransitionTime: '2026-06-11T13:59:40Z'
+    message: ''
+    reason: Succeeded
+    status: 'True'
+    type: ManagedPipelineProcessed
+  - lastTransitionTime: '2026-06-11T13:59:40Z'
+    message: ''
+    reason: Skipped
+    status: 'True'
+    type: FinalPipelineProcessed
+  expirationTime: '2026-06-18T13:45:22Z'
+  managedPipelineAttempts:
+  - completionTime: '2026-06-11T13:59:40Z'
+    pipelineRun: rhtap-releng-tenant/managed-hq8n2
+    roleBindings:
+      tenantRoleBinding: calunga-tenant/calunga-v2-index-main-20260611-133255-000-eb63f46-m4rdk-roqf5bx
+    startTime: '2026-06-11T13:45:32Z'
+    status: Succeeded
+  managedProcessing:
+    completionTime: '2026-06-11T13:59:40Z'
+    pipelineRun: rhtap-releng-tenant/managed-hq8n2
+    roleBindings:
+      tenantRoleBinding: calunga-tenant/calunga-v2-index-main-20260611-133255-000-eb63f46-m4rdk-roqf5bx
+    startTime: '2026-06-11T13:45:32Z'
+  startTime: '2026-06-11T13:45:22Z'
+  target: rhtap-releng-tenant
+  validation:
+    time: '2026-06-11T13:45:22Z'

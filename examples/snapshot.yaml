@@ -1,0 +1,106 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo: https://github.com/calungaproject/index?rev=eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    build.appstudio.redhat.com/commit_sha: eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    build.appstudio.redhat.com/target_branch: main
+    pac.test.appstudio.openshift.io/branch: main
+    pac.test.appstudio.openshift.io/cancel-in-progress: "false"
+    pac.test.appstudio.openshift.io/check-run-id: "80810777313"
+    pac.test.appstudio.openshift.io/controller-info: '{"name":"default","configmap":"pipelines-as-code","secret":"pipelines-as-code-secret",
+      "gRepo": "pipelines-as-code"}'
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/git-auth-secret: pac-gitauth-pqoysw
+    pac.test.appstudio.openshift.io/git-provider: github
+    pac.test.appstudio.openshift.io/installation-id: "85616742"
+    pac.test.appstudio.openshift.io/log-url: https://konflux-ui.apps.kflux-prd-rh03.nnv1.p1.openshiftapps.com/ns/calunga-tenant/pipelinerun/calunga-v2-index-main-on-push-2l5j2
+    pac.test.appstudio.openshift.io/max-keep-runs: "3"
+    pac.test.appstudio.openshift.io/on-cel-expression: event == "push" && target_branch
+      == "main"
+    pac.test.appstudio.openshift.io/original-prname: calunga-v2-index-main-on-push
+    pac.test.appstudio.openshift.io/repo-url: https://github.com/calungaproject/index
+    pac.test.appstudio.openshift.io/repository: calunga-v2-index-main
+    pac.test.appstudio.openshift.io/scm-reporting-plr-started: "true"
+    pac.test.appstudio.openshift.io/sender: github-actions[bot]
+    pac.test.appstudio.openshift.io/sha: eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    pac.test.appstudio.openshift.io/sha-title: Automatic build grpcio==1.81.1
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/calungaproject/index/commit/eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/main
+    pac.test.appstudio.openshift.io/source-repo-url: https://github.com/calungaproject/index
+    pac.test.appstudio.openshift.io/state: completed
+    pac.test.appstudio.openshift.io/url-org: calungaproject
+    pac.test.appstudio.openshift.io/url-repository: index
+    test.appstudio.openshift.io/git-reporter-status: '{"scenarios":{"calunga-v2-index-main-enterprise-contract-calunga-v2-index-main-20260611-133255-000":{"lastUpdateTime":"2026-06-11T13:44:42.721480591Z"},"wheel-check-fedora43-calunga-v2-index-main-20260611-133255-000":{"lastUpdateTime":"2026-06-11T13:45:22.581987806Z"},"wheel-check-hummingbird-python-312-calunga-v2-index-main-20260611-133255-000":{"lastUpdateTime":"2026-06-11T13:44:46.787153333Z"},"wheel-check-ubi10-calunga-v2-index-main-20260611-133255-000":{"lastUpdateTime":"2026-06-11T13:45:08.509557846Z"},"wheel-check-ubi8-calunga-v2-index-main-20260611-133255-000":{"lastUpdateTime":"2026-06-11T13:45:16.548701705Z"},"wheel-check-ubi9-calunga-v2-index-main-20260611-133255-000":{"lastUpdateTime":"2026-06-11T13:44:56.884596043Z"},"wheel-check-ubuntu-calunga-v2-index-main-20260611-133255-000":{"lastUpdateTime":"2026-06-11T13:45:02.947331409Z"}}}'
+    test.appstudio.openshift.io/ignore-supersession: "true"
+    test.appstudio.openshift.io/integration-workflow: push
+    test.appstudio.openshift.io/pipelinerunstarttime: "1781184775000"
+    test.appstudio.openshift.io/result-chains-git-commit: eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    test.appstudio.openshift.io/result-chains-git-url: https://github.com/calungaproject/index
+    test.appstudio.openshift.io/result-image-digest: sha256:ab6fdb10d42aeff658c52d5798174689282e478f08ef9512d2bb8c933196e2a9
+    test.appstudio.openshift.io/result-image-url: quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main:eb63f469c7b3e29a634a1ad076e6c6194ad24ad0.wheel
+    test.appstudio.openshift.io/source-repo-url: https://github.com/calungaproject/index
+    test.appstudio.openshift.io/status: '[{"scenario":"wheel-check-hummingbird-python-312","status":"TestPassed","lastUpdateTime":"2026-06-11T13:44:46.787153333Z","details":"Integration
+      test passed","startTime":"2026-06-11T13:44:14.693886533Z","completionTime":"2026-06-11T13:44:46.787153333Z","testPipelineRunName":"wheel-check-hummingbird-python-312-884x4"},{"scenario":"wheel-check-ubi10","status":"TestPassed","lastUpdateTime":"2026-06-11T13:45:08.509557846Z","details":"Integration
+      test passed","startTime":"2026-06-11T13:44:14.72869512Z","completionTime":"2026-06-11T13:45:08.509557846Z","testPipelineRunName":"wheel-check-ubi10-hlfj4"},{"scenario":"wheel-check-ubi8","status":"TestPassed","lastUpdateTime":"2026-06-11T13:45:16.548701705Z","details":"Integration
+      test passed","startTime":"2026-06-11T13:44:14.793816171Z","completionTime":"2026-06-11T13:45:16.548701705Z","testPipelineRunName":"wheel-check-ubi8-4xjvx"},{"scenario":"wheel-check-ubi9","status":"TestPassed","lastUpdateTime":"2026-06-11T13:44:56.884596043Z","details":"Integration
+      test passed","startTime":"2026-06-11T13:44:14.820760622Z","completionTime":"2026-06-11T13:44:56.884596043Z","testPipelineRunName":"wheel-check-ubi9-6f8n4"},{"scenario":"wheel-check-ubuntu","status":"TestPassed","lastUpdateTime":"2026-06-11T13:45:02.947331409Z","details":"Integration
+      test passed","startTime":"2026-06-11T13:44:14.865014987Z","completionTime":"2026-06-11T13:45:02.947331409Z","testPipelineRunName":"wheel-check-ubuntu-wpcfl"},{"scenario":"calunga-v2-index-main-enterprise-contract","status":"BuildPLRInProgress","lastUpdateTime":"2026-06-11T13:44:42.721480591Z","details":"Integration
+      test passed with warnings","startTime":"2026-06-11T13:44:14.899833145Z","completionTime":"2026-06-11T13:44:42.721480591Z","testPipelineRunName":"calunga-v2-index-main-enterprise-contract-5dfrc"},{"scenario":"wheel-check-fedora43","status":"TestPassed","lastUpdateTime":"2026-06-11T13:45:22.581987806Z","details":"Integration
+      test passed","startTime":"2026-06-11T13:44:14.653099445Z","completionTime":"2026-06-11T13:45:22.581987806Z","testPipelineRunName":"wheel-check-fedora43-pqt5t"}]'
+  creationTimestamp: "2026-06-11T13:44:14Z"
+  generation: 1
+  labels:
+    appstudio.openshift.io/application: calunga-v2-index-main
+    appstudio.openshift.io/build-pipelinerun: calunga-v2-index-main-on-push-2l5j2
+    appstudio.openshift.io/component: calunga-v2-index-main
+    pac.test.appstudio.openshift.io/cancel-in-progress: "false"
+    pac.test.appstudio.openshift.io/check-run-id: "80810777313"
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/original-prname: calunga-v2-index-main-on-push
+    pac.test.appstudio.openshift.io/repository: calunga-v2-index-main
+    pac.test.appstudio.openshift.io/sha: eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+    pac.test.appstudio.openshift.io/state: completed
+    pac.test.appstudio.openshift.io/url-org: calungaproject
+    pac.test.appstudio.openshift.io/url-repository: index
+    test.appstudio.openshift.io/pipelinerunfinishtime: "1781185452"
+    test.appstudio.openshift.io/type: component
+  name: calunga-v2-index-main-20260611-133255-000
+  namespace: calunga-tenant
+  ownerReferences:
+  - apiVersion: appstudio.redhat.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Application
+    name: calunga-v2-index-main
+    uid: 7695d8ba-90f7-49b2-83b2-59432662b07d
+  resourceVersion: "2005052007"
+  uid: 3e799ea3-6268-44f2-8a3c-26186528683e
+spec:
+  application: calunga-v2-index-main
+  artifacts: {}
+  components:
+  - containerImage: quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:ab6fdb10d42aeff658c52d5798174689282e478f08ef9512d2bb8c933196e2a9
+    name: calunga-v2-index-main
+    source:
+      git:
+        revision: eb63f469c7b3e29a634a1ad076e6c6194ad24ad0
+        url: https://github.com/calungaproject/index
+status:
+  conditions:
+  - lastTransitionTime: "2026-06-11T13:45:22Z"
+    message: Snapshot integration status condition is finished since all testing pipelines
+      completed
+    reason: Finished
+    status: "True"
+    type: AppStudioIntegrationStatus
+  - lastTransitionTime: "2026-06-11T13:45:22Z"
+    message: All Integration Pipeline tests passed
+    reason: Passed
+    status: "True"
+    type: AppStudioTestSucceeded
+  - lastTransitionTime: "2026-06-11T13:45:22Z"
+    message: The Snapshot was auto-released
+    reason: AutoReleased
+    status: "True"
+    type: AutoReleased
