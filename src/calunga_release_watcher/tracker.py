@@ -271,12 +271,10 @@ class PipelineTracker:
                 passed,
                 total,
             )
-        elif status == "False":
-            self._transition(
-                info,
-                PipelineState.TESTS_FAILED,
-                f"Test FAILED: {scenario} (reason={reason})",
-                body=body,
+        elif status == "False" and self._live:
+            logger.warning(
+                "%s Test FAILED: %s (reason=%s) — waiting for Snapshot condition",
+                info.log_prefix, scenario, reason,
             )
 
     def on_release(self, body: dict) -> None:
