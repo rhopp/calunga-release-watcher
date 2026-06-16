@@ -17,13 +17,10 @@ spec:
       containers:
         - name: controller
           image: quay.io/rhopp/calunga-release-watcher:latest
+          envFrom:
+            - configMapRef:
+                name: calunga-release-watcher-config
           env:
-            - name: TENANT_NAMESPACE
-              value: calunga-tenant
-            - name: RELEASE_NAMESPACE
-              value: rhtap-releng-tenant
-            - name: K8S_API_URL
-              value: ""  # Set to your Kubernetes API server URL
             - name: K8S_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -35,8 +32,12 @@ spec:
                   name: calunga-release-watcher-secrets
                   key: slack-token
                   optional: true
-            - name: SLACK_CHANNEL
-              value: "UGZCNQU69"
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/run/secrets/gcp/sa-key.json
+          volumeMounts:
+            - name: gcp-sa-key
+              mountPath: /var/run/secrets/gcp
+              readOnly: true
           livenessProbe:
             httpGet:
               path: /healthz
@@ -50,3 +51,11 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
+      volumes:
+        - name: gcp-sa-key
+          secret:
+            secretName: calunga-release-watcher-secrets
+            items:
+              - key: gcp-sa-key
+                path: sa-key.json
+            optional: true

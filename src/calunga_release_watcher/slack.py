@@ -12,6 +12,9 @@ def send_slack_sync(message: str) -> None:
     if not SLACK_BOT_TOKEN:
         logger.warning("SLACK_BOT_TOKEN not set — skipping Slack notification")
         return
+    if not SLACK_CHANNEL:
+        logger.warning("SLACK_CHANNEL not set — skipping Slack notification")
+        return
 
     try:
         data = json.dumps({"channel": SLACK_CHANNEL, "text": message}).encode()

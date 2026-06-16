@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: calunga-release-watcher-config
+data:
+  TENANT_NAMESPACE: calunga-tenant
+  RELEASE_NAMESPACE: rhtap-releng-tenant
+  K8S_API_URL: ""  # Set to your Kubernetes API server URL
+  SLACK_CHANNEL: ""  # Set to your Slack channel ID
+  AI_ANALYSIS_ENABLED: "true"
+  GOOGLE_CLOUD_PROJECT: ""  # Set to your GCP project ID
+  GOOGLE_CLOUD_REGION: "global"
+  AI_MODEL: "claude-sonnet-4-6"
+  AI_MAX_LOG_LINES: "200"
+  AI_TIMEOUT_SECONDS: "30"

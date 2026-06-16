@@ -11,6 +11,8 @@ from calunga_release_watcher.config import (
     LBL_PIPELINE_TYPE,
     LBL_RELEASE_NS,
     RELEASE_NAMESPACE,
+    SLACK_BOT_TOKEN,
+    SLACK_CHANNEL,
     TENANT_NAMESPACE,
 )
 from calunga_release_watcher.tracker import PipelineTracker
@@ -42,14 +44,8 @@ def _delayed_set_live():
 BUILD_FILTER = {LBL_PIPELINE_TYPE: "build", LBL_APPLICATION: APPLICATION}
 
 
-@kopf.on.resume("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-def resume_build_pipelinerun(body, **_):
-    tracker.on_build_pipelinerun(body)
-
-
-@kopf.on.create("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-@kopf.on.update("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-def handle_build_pipelinerun(body, **_):
+@kopf.on.event("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def on_build_pipelinerun(body, **_):
     tracker.on_build_pipelinerun(body)
 
 
@@ -59,52 +55,30 @@ def handle_build_pipelinerun(body, **_):
 TEST_FILTER = {LBL_PIPELINE_TYPE: "test", LBL_APPLICATION: APPLICATION}
 
 
-@kopf.on.resume("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-def resume_test_pipelinerun(body, **_):
-    tracker.on_test_pipelinerun(body)
-
-
-@kopf.on.create("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-@kopf.on.update("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-def handle_test_pipelinerun(body, **_):
+@kopf.on.event("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def on_test_pipelinerun(body, **_):
     tracker.on_test_pipelinerun(body)
 
 
 # ---------------------------------------------------------------------------
 # Snapshots
 # ---------------------------------------------------------------------------
-
-
 SNAPSHOT_FILTER = {LBL_APPLICATION: APPLICATION}
 
 
-@kopf.on.resume("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-def resume_snapshot(body, **_):
-    tracker.on_snapshot(body)
-
-
-@kopf.on.create("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-@kopf.on.update("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-def handle_snapshot(body, **_):
+@kopf.on.event("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def on_snapshot(body, **_):
     tracker.on_snapshot(body)
 
 
 # ---------------------------------------------------------------------------
 # Releases
 # ---------------------------------------------------------------------------
-
-
 RELEASE_FILTER = {LBL_APPLICATION: APPLICATION}
 
 
-@kopf.on.resume("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-def resume_release(body, **_):
-    tracker.on_release(body)
-
-
-@kopf.on.create("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-@kopf.on.update("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))
-def handle_release(body, **_):
+@kopf.on.event("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))
+def on_release(body, **_):
     tracker.on_release(body)
 
 
@@ -114,14 +88,8 @@ def handle_release(body, **_):
 MANAGED_FILTER = {LBL_PIPELINE_TYPE: "managed", LBL_RELEASE_NS: TENANT_NAMESPACE}
 
 
-@kopf.on.resume("tekton.dev", "v1", "pipelineruns", labels=MANAGED_FILTER, when=_in_namespace(RELEASE_NAMESPACE))
-def resume_release_pipelinerun(body, **_):
-    tracker.on_release_pipelinerun(body)
-
-
-@kopf.on.create("tekton.dev", "v1", "pipelineruns", labels=MANAGED_FILTER, when=_in_namespace(RELEASE_NAMESPACE))
-@kopf.on.update("tekton.dev", "v1", "pipelineruns", labels=MANAGED_FILTER, when=_in_namespace(RELEASE_NAMESPACE))
-def handle_release_pipelinerun(body, **_):
+@kopf.on.event("tekton.dev", "v1", "pipelineruns", labels=MANAGED_FILTER, when=_in_namespace(RELEASE_NAMESPACE))
+def on_release_pipelinerun(body, **_):
     tracker.on_release_pipelinerun(body)
 
 
@@ -132,6 +100,10 @@ def handle_release_pipelinerun(body, **_):
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
+    if not SLACK_BOT_TOKEN:
+        raise RuntimeError("SLACK_BOT_TOKEN is required but not set")
+    if not SLACK_CHANNEL:
+        raise RuntimeError("SLACK_CHANNEL is required but not set")
     settings.watching.server_timeout = 270
     settings.persistence.finalizer = ""
     settings.scanning.disabled = True

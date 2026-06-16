@@ -5,10 +5,18 @@ RELEASE_NAMESPACE = os.environ.get("RELEASE_NAMESPACE", "rhtap-releng-tenant")
 APPLICATION = os.environ.get("APPLICATION", "calunga-v2-index-main")
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
-SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", "UGZCNQU69")
+SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", "")
 
 MAX_RETRIES = int(os.environ.get("MAX_RETRIES", "3"))
 STALL_TIMEOUT_MINUTES = int(os.environ.get("STALL_TIMEOUT_MINUTES", "30"))
+
+# AI failure analysis
+AI_ANALYSIS_ENABLED = os.environ.get("AI_ANALYSIS_ENABLED", "false").lower() == "true"
+GOOGLE_CLOUD_PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
+GOOGLE_CLOUD_REGION = os.environ.get("GOOGLE_CLOUD_REGION", "global")
+AI_MODEL = os.environ.get("AI_MODEL", "claude-sonnet-4-6")
+AI_MAX_LOG_LINES = int(os.environ.get("AI_MAX_LOG_LINES", "200"))
+AI_TIMEOUT_SECONDS = int(os.environ.get("AI_TIMEOUT_SECONDS", "30"))
 
 # Label keys
 LBL_PIPELINE_TYPE = "pipelines.appstudio.openshift.io/type"

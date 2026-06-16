@@ -4,6 +4,7 @@ import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
+from calunga_release_watcher.analyzer import analyze_failure, format_analysis
 from calunga_release_watcher.config import ANN_SHA, ANN_SHA_TITLE, LBL_SHA, LBL_SNAPSHOT
 from calunga_release_watcher.slack import send_slack_sync
 
@@ -37,6 +38,7 @@ class PipelineInfo:
     sha: str
     sha_short: str
     package_title: str
+    namespace: str = ""
     state: PipelineState = PipelineState.BUILD_RUNNING
     build_pipelinerun: str = ""
     snapshot: str = ""
@@ -92,6 +94,27 @@ def _fire_slack(message: str) -> None:
     threading.Thread(target=send_slack_sync, args=(message,), daemon=True).start()
 
 
+def _fire_failure_notification(
+    body: dict | None, info, state: "PipelineState", detail: str,
+) -> None:
+    def _worker():
+        analysis = None
+        if body is not None:
+            try:
+                analysis = analyze_failure(
+                    body=body, info=info, failure_state=state, detail=detail,
+                )
+            except Exception:
+                logger.exception("%s AI analysis failed", info.log_prefix)
+
+        slack_msg = f"❌ {info.package_title} (sha={info.sha_short}) — {detail}"
+        if analysis:
+            slack_msg += format_analysis(analysis)
+        send_slack_sync(slack_msg)
+
+    threading.Thread(target=_worker, daemon=True).start()
+
+
 class PipelineTracker:
     def __init__(self) -> None:
         self._pipelines: dict[str, PipelineInfo] = {}
@@ -137,7 +160,10 @@ class PipelineTracker:
     def get(self, sha: str) -> PipelineInfo | None:
         return self._pipelines.get(sha)
 
-    def _transition(self, info: PipelineInfo, new_state: PipelineState, detail: str = "") -> None:
+    def _transition(
+        self, info: PipelineInfo, new_state: PipelineState,
+        detail: str = "", body: dict | None = None,
+    ) -> None:
         old_state = info.state
         if new_state == old_state:
             return
@@ -155,7 +181,7 @@ class PipelineTracker:
 
         if new_state in FAILURE_STATES:
             logger.error(msg)
-            _fire_slack(f"❌ {info.package_title} (sha={info.sha_short}) — {detail}")
+            _fire_failure_notification(body, info, new_state, detail)
         elif new_state == PipelineState.RELEASED:
             logger.info(msg)
             _fire_slack(
@@ -173,6 +199,7 @@ class PipelineTracker:
         status, reason = get_condition_status(body)
         info = self.get_or_create(sha, body)
         info.build_pipelinerun = name
+        info.namespace = body["metadata"]["namespace"]
 
         if status is None:
             self._transition(info, PipelineState.BUILD_RUNNING, f"Build PipelineRun started: {name}")
@@ -183,6 +210,7 @@ class PipelineTracker:
                 info,
                 PipelineState.BUILD_FAILED,
                 f"Build PipelineRun FAILED: {name} (reason={reason})",
+                body=body,
             )
 
     def on_snapshot(self, body: dict) -> None:
@@ -192,12 +220,13 @@ class PipelineTracker:
         name = body["metadata"]["name"]
         info = self.get_or_create(sha, body)
         info.snapshot = name
+        info.namespace = body["metadata"]["namespace"]
 
         test_status, _ = get_named_condition(body, "AppStudioTestSucceeded")
         release_status, _ = get_named_condition(body, "AutoReleased")
 
         if test_status == "False":
-            self._transition(info, PipelineState.TESTS_FAILED, f"Tests failed (via Snapshot {name})")
+            self._transition(info, PipelineState.TESTS_FAILED, f"Tests failed (via Snapshot {name})", body=body)
         elif test_status == "True" and release_status == "True":
             pass
         elif test_status == "True":
@@ -216,6 +245,7 @@ class PipelineTracker:
 
         info = self.get_or_create(sha, body)
         info.test_pipelineruns[name] = status or "Unknown"
+        info.namespace = body["metadata"]["namespace"]
 
         if info.state in (PipelineState.SNAPSHOT_CREATED, PipelineState.BUILD_SUCCEEDED):
             self._transition(info, PipelineState.TESTING, f"Test started: {scenario}")
@@ -235,6 +265,7 @@ class PipelineTracker:
                 info,
                 PipelineState.TESTS_FAILED,
                 f"Test FAILED: {scenario} (reason={reason})",
+                body=body,
             )
 
     def on_release(self, body: dict) -> None:
@@ -244,6 +275,7 @@ class PipelineTracker:
         name = body["metadata"]["name"]
         info = self.get_or_create(sha, body)
         info.release = name
+        info.namespace = body["metadata"]["namespace"]
 
         released_status, released_reason = get_named_condition(body, "Released")
         managed_status, _ = get_named_condition(body, "ManagedPipelineProcessed")
@@ -260,6 +292,7 @@ class PipelineTracker:
                 info,
                 PipelineState.RELEASE_FAILED,
                 f"Release FAILED: {name} (reason={released_reason})",
+                body=body,
             )
         else:
             self._transition(info, PipelineState.RELEASING, f"Release created: {name}")
@@ -274,6 +307,7 @@ class PipelineTracker:
 
         info = self.get_or_create(sha, body)
         info.release_pipelinerun = f"{namespace}/{name}"
+        info.namespace = namespace
 
         if status is None and self._live:
             logger.info(
@@ -293,4 +327,5 @@ class PipelineTracker:
                 info,
                 PipelineState.RELEASE_FAILED,
                 f"Release PipelineRun FAILED: {name} (reason={reason})",
+                body=body,
             )
