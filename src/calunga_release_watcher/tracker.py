@@ -118,6 +118,7 @@ def _fire_failure_notification(
 class PipelineTracker:
     def __init__(self) -> None:
         self._pipelines: dict[str, PipelineInfo] = {}
+        self._seen_shas: set[str] = set()
         self._live = False
 
     def set_live(self) -> None:
@@ -148,13 +149,17 @@ class PipelineTracker:
             )
         self._live = True
 
-    def get_or_create(self, sha: str, body: dict) -> PipelineInfo:
-        if sha not in self._pipelines:
-            self._pipelines[sha] = PipelineInfo(
-                sha=sha,
-                sha_short=sha[:7],
-                package_title=extract_package_title(body),
-            )
+    def get_or_create(self, sha: str, body: dict) -> PipelineInfo | None:
+        if sha in self._pipelines:
+            return self._pipelines[sha]
+        if self._live and sha in self._seen_shas:
+            return None
+        self._seen_shas.add(sha)
+        self._pipelines[sha] = PipelineInfo(
+            sha=sha,
+            sha_short=sha[:7],
+            package_title=extract_package_title(body),
+        )
         return self._pipelines[sha]
 
     def get(self, sha: str) -> PipelineInfo | None:
@@ -198,6 +203,8 @@ class PipelineTracker:
         name = body["metadata"]["name"]
         status, reason = get_condition_status(body)
         info = self.get_or_create(sha, body)
+        if info is None:
+            return
         info.build_pipelinerun = name
         info.namespace = body["metadata"]["namespace"]
 
@@ -219,6 +226,8 @@ class PipelineTracker:
             return
         name = body["metadata"]["name"]
         info = self.get_or_create(sha, body)
+        if info is None:
+            return
         info.snapshot = name
         info.namespace = body["metadata"]["namespace"]
 
@@ -244,6 +253,8 @@ class PipelineTracker:
         status, reason = get_condition_status(body)
 
         info = self.get_or_create(sha, body)
+        if info is None:
+            return
         info.test_pipelineruns[name] = status or "Unknown"
         info.namespace = body["metadata"]["namespace"]
 
@@ -274,6 +285,8 @@ class PipelineTracker:
             return
         name = body["metadata"]["name"]
         info = self.get_or_create(sha, body)
+        if info is None:
+            return
         info.release = name
         info.namespace = body["metadata"]["namespace"]
 
@@ -306,6 +319,8 @@ class PipelineTracker:
         status, reason = get_condition_status(body)
 
         info = self.get_or_create(sha, body)
+        if info is None:
+            return
         info.release_pipelinerun = f"{namespace}/{name}"
         info.namespace = namespace
 
