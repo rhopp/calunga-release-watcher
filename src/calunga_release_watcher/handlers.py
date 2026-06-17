@@ -8,6 +8,7 @@ import kopf
 from calunga_release_watcher.config import (
     APPLICATION,
     LBL_APPLICATION,
+    LBL_EVENT_TYPE,
     LBL_PIPELINE_TYPE,
     LBL_RELEASE_NS,
     RELEASE_NAMESPACE,
@@ -41,7 +42,7 @@ def _delayed_set_live():
 # ---------------------------------------------------------------------------
 # Build PipelineRuns
 # ---------------------------------------------------------------------------
-BUILD_FILTER = {LBL_PIPELINE_TYPE: "build", LBL_APPLICATION: APPLICATION}
+BUILD_FILTER = {LBL_PIPELINE_TYPE: "build", LBL_APPLICATION: APPLICATION, LBL_EVENT_TYPE: "push"}
 
 
 @kopf.on.event("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
@@ -52,7 +53,7 @@ def on_build_pipelinerun(body, **_):
 # ---------------------------------------------------------------------------
 # Test PipelineRuns
 # ---------------------------------------------------------------------------
-TEST_FILTER = {LBL_PIPELINE_TYPE: "test", LBL_APPLICATION: APPLICATION}
+TEST_FILTER = {LBL_PIPELINE_TYPE: "test", LBL_APPLICATION: APPLICATION, LBL_EVENT_TYPE: "push"}
 
 
 @kopf.on.event("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
@@ -63,7 +64,7 @@ def on_test_pipelinerun(body, **_):
 # ---------------------------------------------------------------------------
 # Snapshots
 # ---------------------------------------------------------------------------
-SNAPSHOT_FILTER = {LBL_APPLICATION: APPLICATION}
+SNAPSHOT_FILTER = {LBL_APPLICATION: APPLICATION, LBL_EVENT_TYPE: "push"}
 
 
 @kopf.on.event("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
@@ -74,7 +75,7 @@ def on_snapshot(body, **_):
 # ---------------------------------------------------------------------------
 # Releases
 # ---------------------------------------------------------------------------
-RELEASE_FILTER = {LBL_APPLICATION: APPLICATION}
+RELEASE_FILTER = {LBL_APPLICATION: APPLICATION, LBL_EVENT_TYPE: "push"}
 
 
 @kopf.on.event("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))

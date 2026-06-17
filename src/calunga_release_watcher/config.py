@@ -26,6 +26,7 @@ LBL_SNAPSHOT = "appstudio.openshift.io/snapshot"
 LBL_BUILD_PLR = "appstudio.openshift.io/build-pipelinerun"
 LBL_RELEASE_NAME = "release.appstudio.openshift.io/name"
 LBL_RELEASE_NS = "release.appstudio.openshift.io/namespace"
+LBL_EVENT_TYPE = "pac.test.appstudio.openshift.io/event-type"
 
 # Annotation keys shared across PAC resources
 ANN_SHA = "pac.test.appstudio.openshift.io/sha"
