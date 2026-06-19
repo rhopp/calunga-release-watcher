@@ -1,0 +1,262 @@
+{
+  "_description": "Build failure: dependency resolution error (dbt-core-experimental-parser not found on PyPI)",
+  "_expected_classification": [
+    "real"
+  ],
+  "body": {
+    "kind": "PipelineRun",
+    "metadata": {
+      "name": "calunga-v2-index-main-on-pull-request-d9xgr",
+      "namespace": "calunga-tenant",
+      "labels": {
+        "tekton.dev/pipeline": "calunga-v2-index-main-on-pull-request",
+        "app.kubernetes.io/version": "v0.47.0",
+        "kueue.x-k8s.io/queue-name": "pipelines-queue",
+        "app.kubernetes.io/managed-by": "pipelinesascode.tekton.dev",
+        "kueue.x-k8s.io/priority-class": "konflux-pre-merge-build",
+        "pipelinesascode.tekton.dev/sha": "94c5c1d8525756d5b55bcc777f9659a452313ff4",
+        "appstudio.openshift.io/component": "calunga-v2-index-main",
+        "pipelinesascode.tekton.dev/state": "completed",
+        "appstudio.openshift.io/application": "calunga-v2-index-main",
+        "pipelinesascode.tekton.dev/url-org": "calungaproject",
+        "pipelines.appstudio.openshift.io/type": "build",
+        "pipelinesascode.tekton.dev/event-type": "pull_request",
+        "pipelinesascode.tekton.dev/repository": "calunga-v2-index-main",
+        "pipelinesascode.tekton.dev/check-run-id": "82357261691",
+        "pipelinesascode.tekton.dev/pull-request": "3848",
+        "test.appstudio.openshift.io/pr-group-sha": "3473e76de22bb6b29bffada55c18a562dd85b867bd1bea72ef3b4fe45e5012",
+        "pipelinesascode.tekton.dev/url-repository": "index",
+        "pipelinesascode.tekton.dev/original-prname": "calunga-v2-index-main-on-pull-request",
+        "pipelinesascode.tekton.dev/cancel-in-progress": "true"
+      },
+      "annotations": {
+        "build.appstudio.openshift.io/repo": "https://github.com/calungaproject/index?rev=94c5c1d8525756d5b55bcc777f9659a452313ff4",
+        "test.appstudio.openshift.io/pr-group": "update-dbt-snowflake==1.10.8",
+        "test.appstudio.openshift.io/snapshot-creation-report": "GroupSnapshotCreationFailed"
+      }
+    },
+    "status": {
+      "conditions": [
+        {
+          "type": "Succeeded",
+          "reason": "Failed",
+          "status": "False",
+          "message": "Tasks Completed: 5 (Failed: 1, Cancelled 0), Skipped: 5",
+          "lastTransitionTime": "2026-06-19T13:20:58Z"
+        }
+      ],
+      "childReferences": [
+        {
+          "kind": "TaskRun",
+          "name": "calunga-v2-index-main-on-pull-request-d9xgr-init",
+          "apiVersion": "tekton.dev/v1",
+          "pipelineTaskName": "init"
+        },
+        {
+          "kind": "TaskRun",
+          "name": "calunga-v2-index-main-on-pull-request-d9xgr-clone-repository",
+          "apiVersion": "tekton.dev/v1",
+          "pipelineTaskName": "clone-repository"
+        },
+        {
+          "kind": "TaskRun",
+          "name": "calunga-v2-index-main-on-pull-request-d9xgr-identify-packages",
+          "apiVersion": "tekton.dev/v1",
+          "pipelineTaskName": "identify-packages"
+        },
+        {
+          "kind": "TaskRun",
+          "name": "calunga-v2-index-main-on-pull-request-d9xgr-build-wheels",
+          "apiVersion": "tekton.dev/v1",
+          "whenExpressions": [
+            {
+              "input": "has-packages",
+              "values": [
+                "has-packages"
+              ],
+              "operator": "in"
+            }
+          ],
+          "pipelineTaskName": "build-wheels"
+        },
+        {
+          "kind": "TaskRun",
+          "name": "calf3cd449232940d773323b701b792e967-coverity-availability-check",
+          "apiVersion": "tekton.dev/v1",
+          "whenExpressions": [
+            {
+              "input": "false",
+              "values": [
+                "false"
+              ],
+              "operator": "in"
+            }
+          ],
+          "pipelineTaskName": "coverity-availability-check"
+        }
+      ]
+    }
+  },
+  "test_pipelineruns": [],
+  "taskruns": {
+    "calunga-v2-index-main-on-pull-request-d9xgr-build-wheels": {
+      "kind": "TaskRun",
+      "metadata": {
+        "name": "calunga-v2-index-main-on-pull-request-d9xgr-build-wheels",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/task": "build-python-wheels-oci-ta",
+          "tekton.dev/memberOf": "tasks",
+          "tekton.dev/pipeline": "calunga-v2-index-main-on-pull-request",
+          "tekton.dev/pipelineRun": "calunga-v2-index-main-on-pull-request-d9xgr",
+          "tekton.dev/pipelineTask": "build-wheels",
+          "tekton.dev/pipelineRunUID": "4083c54b-21ea-4f9b-88d0-597eb3f49b7f"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "StepFailed",
+            "status": "False",
+            "message": "\"step-build-wheels\" exited with code 1: Error",
+            "lastTransitionTime": "2026-06-19T13:20:58Z"
+          }
+        ],
+        "podName": "calunga-v2-index-main-on-pull-request-d9xgr-build-wheels-pod"
+      }
+    },
+    "calunga-v2-index-main-on-pull-request-d9xgr-identify-packages": {
+      "kind": "TaskRun",
+      "metadata": {
+        "name": "calunga-v2-index-main-on-pull-request-d9xgr-identify-packages",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/task": "run-script-oci-ta",
+          "tekton.dev/memberOf": "tasks",
+          "tekton.dev/pipeline": "calunga-v2-index-main-on-pull-request",
+          "tekton.dev/pipelineRun": "calunga-v2-index-main-on-pull-request-d9xgr",
+          "tekton.dev/pipelineTask": "identify-packages",
+          "tekton.dev/pipelineRunUID": "4083c54b-21ea-4f9b-88d0-597eb3f49b7f"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "All Steps have completed executing",
+            "lastTransitionTime": "2026-06-19T13:17:17Z"
+          }
+        ],
+        "podName": "calunga-v2-index-main-on-pu97206d7adab18bb4923dd7cba25c0f1d-pod"
+      }
+    },
+    "calunga-v2-index-main-on-pull-request-d9xgr-clone-repository": {
+      "kind": "TaskRun",
+      "metadata": {
+        "name": "calunga-v2-index-main-on-pull-request-d9xgr-clone-repository",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/task": "git-clone-oci-ta",
+          "tekton.dev/memberOf": "tasks",
+          "tekton.dev/pipeline": "calunga-v2-index-main-on-pull-request",
+          "tekton.dev/pipelineRun": "calunga-v2-index-main-on-pull-request-d9xgr",
+          "tekton.dev/pipelineTask": "clone-repository",
+          "tekton.dev/pipelineRunUID": "4083c54b-21ea-4f9b-88d0-597eb3f49b7f"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "All Steps have completed executing",
+            "lastTransitionTime": "2026-06-19T13:16:47Z"
+          }
+        ],
+        "podName": "calunga-v2-index-main-on-pucf5cd98052a149f38b1b3d42d23e02e4-pod"
+      }
+    },
+    "calf3cd449232940d773323b701b792e967-coverity-availability-check": {
+      "kind": "TaskRun",
+      "metadata": {
+        "name": "calf3cd449232940d773323b701b792e967-coverity-availability-check",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/task": "coverity-availability-check",
+          "tekton.dev/memberOf": "tasks",
+          "tekton.dev/pipeline": "calunga-v2-index-main-on-pull-request",
+          "tekton.dev/pipelineRun": "calunga-v2-index-main-on-pull-request-d9xgr",
+          "tekton.dev/pipelineTask": "coverity-availability-check",
+          "tekton.dev/pipelineRunUID": "4083c54b-21ea-4f9b-88d0-597eb3f49b7f"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "All Steps have completed executing",
+            "lastTransitionTime": "2026-06-19T13:16:43Z"
+          }
+        ],
+        "podName": "calf3cd449232940d773323b7016c9d4c6f8c6eaf04bd225063d82d9f44-pod"
+      }
+    },
+    "calunga-v2-index-main-on-pull-request-d9xgr-init": {
+      "kind": "TaskRun",
+      "metadata": {
+        "name": "calunga-v2-index-main-on-pull-request-d9xgr-init",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/task": "init",
+          "tekton.dev/memberOf": "tasks",
+          "tekton.dev/pipeline": "calunga-v2-index-main-on-pull-request",
+          "tekton.dev/pipelineRun": "calunga-v2-index-main-on-pull-request-d9xgr",
+          "tekton.dev/pipelineTask": "init",
+          "tekton.dev/pipelineRunUID": "4083c54b-21ea-4f9b-88d0-597eb3f49b7f"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "All Steps have completed executing",
+            "lastTransitionTime": "2026-06-19T13:16:41Z"
+          }
+        ],
+        "podName": "calunga-v2-index-main-on-pull-request-d9xgr-init-pod"
+      }
+    }
+  },
+  "pods": {
+    "calunga-v2-index-main-on-pull-request-d9xgr-build-wheels-pod": {
+      "containers": [
+        "step-use-trusted-artifact",
+        "step-build-wheels",
+        "step-collect-build-files",
+        "step-create-oci-artifact"
+      ],
+      "init_containers": [
+        "prepare",
+        "place-scripts"
+      ]
+    }
+  },
+  "pod_logs": {
+    "calunga-v2-index-main-on-pull-request-d9xgr-build-wheels-pod": {
+      "step-use-trusted-artifact": "Using token for quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main\nExecuting: oras blob fetch --registry-config /tmp/use-oci.sh.R2sv7s/auth-DoMMYj.json quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:9e5d16a735e0c015e663f0d126d76c210e86fa31eaccbc6e5c0916650ad1ce0a --output -\nRestored artifact quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:9e5d16a735e0c015e663f0d126d76c210e86fa31eaccbc6e5c0916650ad1ce0a to /var/workdir/source\n",
+      "step-build-wheels": "13:20:56 INFO daff: saved wheel to /var/workdir/output/wheels-repo/downloads/daff-1.4.2-0-py3-none-any.whl\n13:20:56 INFO daff: found built wheel on cache server\n13:20:56 INFO daff: extracted /var/workdir/output/work-dir/daff-1.4.2/build-backend-requirements.txt\n13:20:56 INFO daff: extracted /var/workdir/output/work-dir/daff-1.4.2/build-sdist-requirements.txt\n13:20:56 INFO daff: extracted /var/workdir/output/work-dir/daff-1.4.2/build-system-requirements.txt\n13:20:56 INFO daff: extracted build requirements from wheel into /var/workdir/output/work-dir/daff-1.4.2\n13:20:56 INFO daff: created build environment in /var/workdir/output/work-dir/daff-1.4.2/build-3.12.12\n13:20:56 INFO daff: getting build system dependencies for daff>=1.3.46 in /var/workdir/output/work-dir/daff-1.4.2/daff-1.4\n13:20:56 INFO daff: loading build system dependencies from /var/workdir/output/work-dir/daff-1.4.2/build-system-requirements.txt\n13:20:56 INFO setuptools: bootstrapping setuptools>=40.8.0 as build-system dependency of [(<RequirementType.INSTALL: 'install'>, <Requirement('daff>=1.3.46')>, <Version('1.4.2')>)]\n\r 86%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258b     | 168/195 [02:30<00:16,  1.64pkg/s]INFO:     127.0.0.1:59768 - \"GET /simple/setuptools/ HTTP/1.1\" 307 Temporary Redirect\nINFO:     127.0.0.1:59768 - \"GET /simple/setuptools HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:59768 - \"HEAD /simple/setuptools/setuptools-82.0.1-0-py3-none-any.whl HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:59768 - \"GET /simple/setuptools/setuptools-82.0.1-0-py3-none-any.whl HTTP/1.1\" 206 Partial Content\nINFO:     127.0.0.1:59768 - \"GET /simple/setuptools/setuptools-82.0.1-0-py3-none-any.whl HTTP/1.1\" 206 Partial Content\nINFO:     127.0.0.1:59768 - \"GET /simple/setuptools/setuptools-82.0.1-0-py3-none-any.whl HTTP/1.1\" 206 Partial Content\nINFO:     127.0.0.1:59768 - \"GET /simple/setuptools/setuptools-82.0.1-0-py3-none-any.whl HTTP/1.1\" 206 Partial Content\nINFO:     127.0.0.1:59768 - \"GET /simple/setuptools/setuptools-82.0.1-0-py3-none-any.whl HTTP/1.1\" 200 OK\n13:20:56 INFO daff: installed dependencies {<Requirement('setuptools>=40.8.0')>} into build environment in /var/workdir/output/work-dir/daff-1.4.2/build-3.12.12\n13:20:56 INFO daff: getting build backend dependencies for daff>=1.3.46 in /var/workdir/output/work-dir/daff-1.4.2/daff-1.4\n13:20:56 INFO daff: loading build backend dependencies from /var/workdir/output/work-dir/daff-1.4.2/build-backend-requirements.txt\n13:20:56 INFO daff: getting build sdist dependencies for daff>=1.3.46 in /var/workdir/output/work-dir/daff-1.4.2/daff-1.4\n13:20:56 INFO daff: loading build sdist dependencies from /var/workdir/output/work-dir/daff-1.4.2/build-sdist-requirements.txt\n13:20:56 INFO daff: getting installation dependencies from /var/workdir/output/wheels-repo/downloads/daff-1.4.2-0-py3-none-any.whl\n13:20:56 INFO daff: adding ('daff', '1.4.2') to build order\n\r 87%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2589     | 169/195 [02:31<00:14,  1.79pkg/s]13:20:56 INFO dbt-adapters: bootstrapping dbt-adapters<2.0,>=1.24.1 as install dependency of [(<RequirementType.INSTALL: 'install'>, <Requirement('dbt-core<2.0,>=1.10.0rc0')>, <Version('1.12.0b3')>)]\n13:20:56 INFO dbt-common: bootstrapping dbt-common<2.0,>=1.37.5 as install dependency of [(<RequirementType.INSTALL: 'install'>, <Requirement('dbt-core<2.0,>=1.10.0rc0')>, <Version('1.12.0b3')>)]\n13:20:56 INFO dbt-core-experimental-parser: bootstrapping dbt-core-experimental-parser<3,>=2.0.0a1 as install dependency of [(<RequirementType.INSTALL: 'install'>, <Requirement('dbt-core<2.0,>=1.10.0rc0')>, <Version('1.12.0b3')>)]\n\r 88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258e    | 171/195 [02:31<00:21,  1.13pkg/s]\n13:20:56 ERROR dbt-snowflake: Unable to resolve requirement specifier dbt-core-experimental-parser<3,>=2.0.0a1 with constraint None using PyPI resolver (searching at https://pypi.org/simple): found no match for dbt-core-experimental-parser<3,>=2.0.0a1 using PyPI resolver (searching at https://pypi.org/simple), searching for sdists, including pre-release versions because found no match for dbt-core-experimental-parser<3,>=2.0.0a1 using PyPI resolver (searching at https://pypi.org/simple), searching for sdists, including pre-release versions\n",
+      "step-collect-build-files": "2026/06/19 13:20:57 Skipping step because a previous step failed\n",
+      "step-create-oci-artifact": "2026/06/19 13:20:57 Skipping step because a previous step failed\n",
+      "prepare": "2026/06/19 13:18:18 Entrypoint initialization\n",
+      "place-scripts": "2026/06/19 13:18:19 Decoded script /tekton/scripts/script-3-lj75b\n"
+    }
+  }
+}

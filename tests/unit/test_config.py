@@ -15,7 +15,7 @@ def test_default_values(monkeypatch):
     assert config.MAX_RETRIES == 3
     assert config.AI_ANALYSIS_ENABLED is False
     assert config.RETRY_ENABLED is False
-    assert config.AI_MODEL == "claude-sonnet-4-6"
+    assert config.AI_MODEL == "claude-haiku-4-5"
 
 
 def test_env_override_strings(monkeypatch):

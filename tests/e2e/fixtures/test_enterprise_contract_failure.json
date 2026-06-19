@@ -1,0 +1,755 @@
+{
+  "_description": "Enterprise Contract failure: 3 policy violations (untrusted tasks)",
+  "_expected_classification": [
+    "real",
+    "infra"
+  ],
+  "body": {
+    "kind": "Snapshot",
+    "metadata": {
+      "name": "calunga-v2-index-main-20260608-080814-000",
+      "namespace": "calunga-tenant",
+      "labels": {
+        "appstudio.openshift.io/component": "calunga-v2-index-main",
+        "test.appstudio.openshift.io/type": "component",
+        "appstudio.openshift.io/application": "calunga-v2-index-main",
+        "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+        "pac.test.appstudio.openshift.io/state": "completed",
+        "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+        "appstudio.openshift.io/build-pipelinerun": "calunga-v2-index-main-on-pull-request-kmsmm",
+        "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+        "pac.test.appstudio.openshift.io/event-type": "pull_request",
+        "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+        "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+        "pac.test.appstudio.openshift.io/pull-request": "3563",
+        "pac.test.appstudio.openshift.io/url-repository": "index",
+        "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+        "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+        "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+      },
+      "annotations": {
+        "build.appstudio.openshift.io/repo": "https://github.com/calungaproject/index?rev=4be342247f1a9245ebd9875193e4e6261b768a16",
+        "test.appstudio.openshift.io/status": "[{\"scenario\":\"wheel-check-ubuntu\",\"status\":\"TestPassed\",\"lastUpdateTime\":\"2026-06-08T08:11:42.422458268Z\",\"details\":\"Integration test passed\",\"startTime\":\"2026-06-08T08:11:11.804285799Z\",\"completionTime\":\"2026-06-08T08:11:42.422458268Z\",\"testPipelineRunName\":\"wheel-check-ubuntu-jqkhf\"},{\"scenario\":\"calunga-v2-index-main-enterprise-contract\",\"status\":\"TestFail\",\"lastUpdateTime\":\"2026-06-08T08:11:46.653847951Z\",\"details\":\"Integration test failed\",\"startTime\":\"2026-06-08T08:11:11.53814832Z\",\"completionTime\":\"2026-06-08T08:11:46.653847951Z\",\"testPipelineRunName\":\"calunga-v2-index-main-enterprise-contract-nlrhx\"},{\"scenario\":\"wheel-check-fedora43\",\"status\":\"TestPassed\",\"lastUpdateTime\":\"2026-06-08T08:11:52.63367884Z\",\"details\":\"Integration test passed\",\"startTime\":\"2026-06-08T08:11:11.586500698Z\",\"completionTime\":\"2026-06-08T08:11:52.63367884Z\",\"testPipelineRunName\":\"wheel-check-fedora43-cwsfs\"},{\"scenario\":\"wheel-check-hummingbird-python-312\",\"status\":\"TestPassed\",\"lastUpdateTime\":\"2026-06-08T08:11:52.593088324Z\",\"details\":\"Integration test passed\",\"startTime\":\"2026-06-08T08:11:11.671226405Z\",\"completionTime\":\"2026-06-08T08:11:52.593088324Z\",\"testPipelineRunName\":\"wheel-check-hummingbird-python-312-4wmk8\"},{\"scenario\":\"wheel-check-ubi10\",\"status\":\"TestPassed\",\"lastUpdateTime\":\"2026-06-08T08:11:42.288968726Z\",\"details\":\"Integration test passed\",\"startTime\":\"2026-06-08T08:11:11.702467192Z\",\"completionTime\":\"2026-06-08T08:11:42.288968726Z\",\"testPipelineRunName\":\"wheel-check-ubi10-4pfr9\"},{\"scenario\":\"wheel-check-ubi8\",\"status\":\"TestPassed\",\"lastUpdateTime\":\"2026-06-08T08:11:40.416366949Z\",\"details\":\"Integration test passed\",\"startTime\":\"2026-06-08T08:11:11.733783853Z\",\"completionTime\":\"2026-06-08T08:11:40.416366949Z\",\"testPipelineRunName\":\"wheel-check-ubi8-ff2xb\"},{\"scenario\":\"wheel-check-ubi9\",\"status\":\"TestPassed\",\"lastUpdateTime\":\"2026-06-08T08:11:39.414645553Z\",\"details\":\"Integration test passed\",\"startTime\":\"2026-06-08T08:11:11.769355666Z\",\"completionTime\":\"2026-06-08T08:11:39.414645553Z\",\"testPipelineRunName\":\"wheel-check-ubi9-bjvgl\"}]",
+        "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+        "test.appstudio.openshift.io/pr-group": "update-sh==2.2.4",
+        "pac.test.appstudio.openshift.io/state": "completed",
+        "pac.test.appstudio.openshift.io/branch": "main",
+        "pac.test.appstudio.openshift.io/sender": "github-actions[bot]",
+        "pac.test.appstudio.openshift.io/log-url": "https://konflux-ui.apps.kflux-prd-rh03.nnv1.p1.openshiftapps.com/ns/calunga-tenant/pipelinerun/calunga-v2-index-main-on-pull-request-kmsmm",
+        "pac.test.appstudio.openshift.io/sha-url": "https://github.com/calungaproject/index/commit/4be342247f1a9245ebd9875193e4e6261b768a16",
+        "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+        "pac.test.appstudio.openshift.io/repo-url": "https://github.com/calungaproject/index",
+        "pac.test.appstudio.openshift.io/sha-title": "Automatic build sh==2.2.4",
+        "pac.test.appstudio.openshift.io/event-type": "pull_request",
+        "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+        "test.appstudio.openshift.io/source-repo-url": "https://github.com/calungaproject/index",
+        "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+        "pac.test.appstudio.openshift.io/git-provider": "github",
+        "pac.test.appstudio.openshift.io/pull-request": "3563",
+        "pac.test.appstudio.openshift.io/max-keep-runs": "3",
+        "pac.test.appstudio.openshift.io/source-branch": "update-sh==2.2.4",
+        "pac.test.appstudio.openshift.io/url-repository": "index",
+        "pac.test.appstudio.openshift.io/controller-info": "{\"name\":\"default\",\"configmap\":\"pipelines-as-code\",\"secret\":\"pipelines-as-code-secret\", \"gRepo\": \"pipelines-as-code\"}",
+        "pac.test.appstudio.openshift.io/git-auth-secret": "pac-gitauth-oaqkqo",
+        "pac.test.appstudio.openshift.io/installation-id": "85616742",
+        "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+        "pac.test.appstudio.openshift.io/source-repo-url": "https://github.com/calungaproject/index",
+        "test.appstudio.openshift.io/git-reporter-status": "{\"scenarios\":{\"calunga-v2-index-main-enterprise-contract-calunga-v2-index-main-20260608-080814-000\":{\"lastUpdateTime\":\"2026-06-08T08:11:46.653847951Z\"},\"wheel-check-fedora43-calunga-v2-index-main-20260608-080814-000\":{\"lastUpdateTime\":\"2026-06-08T08:11:52.63367884Z\"},\"wheel-check-hummingbird-python-312-calunga-v2-index-main-20260608-080814-000\":{\"lastUpdateTime\":\"2026-06-08T08:11:52.593088324Z\"},\"wheel-check-ubi10-calunga-v2-index-main-20260608-080814-000\":{\"lastUpdateTime\":\"2026-06-08T08:11:42.288968726Z\"},\"wheel-check-ubi8-calunga-v2-index-main-20260608-080814-000\":{\"lastUpdateTime\":\"2026-06-08T08:11:40.416366949Z\"},\"wheel-check-ubi9-calunga-v2-index-main-20260608-080814-000\":{\"lastUpdateTime\":\"2026-06-08T08:11:39.414645553Z\"},\"wheel-check-ubuntu-calunga-v2-index-main-20260608-080814-000\":{\"lastUpdateTime\":\"2026-06-08T08:11:42.422458268Z\"}}}",
+        "test.appstudio.openshift.io/integration-workflow": "pull-request",
+        "test.appstudio.openshift.io/pipelinerunstarttime": "1780906094000",
+        "pac.test.appstudio.openshift.io/on-cel-expression": "event == \"pull_request\" && target_branch == \"main\"",
+        "pac.test.appstudio.openshift.io/cancel-in-progress": "true",
+        "test.appstudio.openshift.io/snapshot-creation-report": "SnapshotCreationFailed",
+        "test.appstudio.openshift.io/create-groupsnapshot-status": "The number 0 of component snapshots belonging to this pr group hash e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198 is less than 2, skipping group snapshot creation",
+        "pac.test.appstudio.openshift.io/scm-reporting-plr-started": "true"
+      }
+    },
+    "status": {
+      "conditions": [
+        {
+          "type": "AppStudioIntegrationStatus",
+          "reason": "Finished",
+          "status": "True",
+          "message": "Snapshot integration status condition is finished since all testing pipelines completed",
+          "lastTransitionTime": "2026-06-08T08:11:53Z"
+        },
+        {
+          "type": "AppStudioTestSucceeded",
+          "reason": "Failed",
+          "status": "False",
+          "message": "Some Integration pipeline tests failed",
+          "lastTransitionTime": "2026-06-08T08:11:53Z"
+        }
+      ]
+    }
+  },
+  "test_pipelineruns": [
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-hummingbird-python-312-dbpp4",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/optional": "false",
+          "test.appstudio.openshift.io/scenario": "wheel-check-hummingbird-python-312",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:52Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel3cc61f67e36922b061dbe482bef7246f-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-fedora43-cwsfs",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "test.appstudio.openshift.io/run": "wheel-check-ubi9",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/scenario": "wheel-check-fedora43",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:52Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-fedora43-cwsfs-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-hummingbird-python-312-4wmk8",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "test.appstudio.openshift.io/run": "wheel-check-ubi9",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/optional": "false",
+          "test.appstudio.openshift.io/scenario": "wheel-check-hummingbird-python-312",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:52Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel9d6743ec192f10b1205b32aa75f78da7-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-ubi9-bjvgl",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/scenario": "wheel-check-ubi9",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:48Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-ubi9-bjvgl-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "calunga-v2-index-main-enterprise-contract-nlrhx",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "enterprise-contract",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "test.appstudio.openshift.io/run": "wheel-check-ubi9",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/optional": "false",
+          "test.appstudio.openshift.io/scenario": "calunga-v2-index-main-enterprise-contract",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Failed",
+            "status": "False",
+            "message": "Tasks Completed: 2 (Failed: 1, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:46Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "calunga-ae64d3919262796ac021b52651760a32-collect-keyless-params",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "collect-keyless-params"
+          },
+          {
+            "kind": "TaskRun",
+            "name": "calunga-v2-index-main-enterprise-contract-nlrhx-verify",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "verify"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-ubi8-ff2xb",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/scenario": "wheel-check-ubi8",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:46Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-ubi8-ff2xb-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-ubuntu-zq54n",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/optional": "false",
+          "test.appstudio.openshift.io/scenario": "wheel-check-ubuntu",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:42Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-ubuntu-zq54n-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-ubuntu-jqkhf",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "test.appstudio.openshift.io/run": "wheel-check-ubi9",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/optional": "false",
+          "test.appstudio.openshift.io/scenario": "wheel-check-ubuntu",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:42Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-ubuntu-jqkhf-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-ubi10-hs8sc",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "test.appstudio.openshift.io/run": "wheel-check-ubi9",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/optional": "false",
+          "test.appstudio.openshift.io/scenario": "wheel-check-ubi10",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:42Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-ubi10-hs8sc-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-ubi10-4pfr9",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/optional": "false",
+          "test.appstudio.openshift.io/scenario": "wheel-check-ubi10",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:42Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-ubi10-4pfr9-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-ubi8-rwjrq",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "test.appstudio.openshift.io/run": "wheel-check-ubi9",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/scenario": "wheel-check-ubi8",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:40Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-ubi8-rwjrq-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "PipelineRun",
+      "metadata": {
+        "name": "wheel-check-ubi9-2lmq7",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/pipeline": "wheel-integration-test",
+          "appstudio.openshift.io/snapshot": "calunga-v2-index-main-20260608-080814-000",
+          "test.appstudio.openshift.io/run": "wheel-check-ubi9",
+          "appstudio.openshift.io/component": "calunga-v2-index-main",
+          "test.appstudio.openshift.io/type": "component",
+          "appstudio.openshift.io/application": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/sha": "4be342247f1a9245ebd9875193e4e6261b768a16",
+          "test.appstudio.openshift.io/scenario": "wheel-check-ubi9",
+          "pac.test.appstudio.openshift.io/state": "completed",
+          "pipelines.appstudio.openshift.io/type": "test",
+          "pac.test.appstudio.openshift.io/url-org": "calungaproject",
+          "test.appstudio.openshift.io/pr-group-sha": "e6e245529999caac845df1d563714b5f80f0d39a38ae382a8ad3250440a198",
+          "pac.test.appstudio.openshift.io/event-type": "pull_request",
+          "pac.test.appstudio.openshift.io/repository": "calunga-v2-index-main",
+          "pac.test.appstudio.openshift.io/check-run-id": "80048943002",
+          "pac.test.appstudio.openshift.io/pull-request": "3563",
+          "pac.test.appstudio.openshift.io/url-repository": "index",
+          "pac.test.appstudio.openshift.io/original-prname": "calunga-v2-index-main-on-pull-request",
+          "test.appstudio.openshift.io/pipelinerunfinishtime": "1780906269",
+          "pac.test.appstudio.openshift.io/cancel-in-progress": "true"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "lastTransitionTime": "2026-06-08T08:11:39Z"
+          }
+        ],
+        "childReferences": [
+          {
+            "kind": "TaskRun",
+            "name": "wheel-check-ubi9-2lmq7-install-and-import-wheels",
+            "apiVersion": "tekton.dev/v1",
+            "pipelineTaskName": "install-and-import-wheels"
+          }
+        ]
+      }
+    }
+  ],
+  "taskruns": {
+    "calunga-v2-index-main-enterprise-contract-nlrhx-verify": {
+      "kind": "TaskRun",
+      "metadata": {
+        "name": "calunga-v2-index-main-enterprise-contract-nlrhx-verify",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/task": "verify-enterprise-contract",
+          "tekton.dev/memberOf": "tasks",
+          "tekton.dev/pipeline": "enterprise-contract",
+          "tekton.dev/pipelineRun": "calunga-v2-index-main-enterprise-contract-nlrhx",
+          "tekton.dev/pipelineTask": "verify",
+          "tekton.dev/pipelineRunUID": "bdc53a6f-1192-4ff4-8df0-9c1e1d281ff8"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Failed",
+            "status": "False",
+            "message": "\"step-assert\" exited with code 1: Error",
+            "lastTransitionTime": "2026-06-08T08:11:46Z"
+          }
+        ],
+        "podName": "calunga-v2-index-main-enterprise-contract-nlrhx-verify-pod"
+      }
+    },
+    "calunga-ae64d3919262796ac021b52651760a32-collect-keyless-params": {
+      "kind": "TaskRun",
+      "metadata": {
+        "name": "calunga-ae64d3919262796ac021b52651760a32-collect-keyless-params",
+        "namespace": "calunga-tenant",
+        "labels": {
+          "tekton.dev/task": "collect-keyless-params",
+          "tekton.dev/memberOf": "tasks",
+          "tekton.dev/pipeline": "enterprise-contract",
+          "tekton.dev/pipelineRun": "calunga-v2-index-main-enterprise-contract-nlrhx",
+          "tekton.dev/pipelineTask": "collect-keyless-params",
+          "tekton.dev/pipelineRunUID": "bdc53a6f-1192-4ff4-8df0-9c1e1d281ff8"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "type": "Succeeded",
+            "reason": "Succeeded",
+            "status": "True",
+            "message": "All Steps have completed executing",
+            "lastTransitionTime": "2026-06-08T08:11:19Z"
+          }
+        ],
+        "podName": "calunga-ae64d3919262796ac02f10c3ef67ec005df57422ebf211f4293-pod"
+      }
+    }
+  },
+  "pods": {
+    "calunga-v2-index-main-enterprise-contract-nlrhx-verify-pod": {
+      "containers": [
+        "step-initialize-tuf",
+        "step-reduce",
+        "step-pin-policy-bundle",
+        "step-validate",
+        "step-report-json",
+        "step-summary",
+        "step-version",
+        "step-show-config",
+        "step-detailed-report",
+        "step-assert"
+      ],
+      "init_containers": [
+        "prepare",
+        "place-scripts"
+      ]
+    }
+  },
+  "pod_logs": {
+    "calunga-v2-index-main-enterprise-contract-nlrhx-verify-pod": {
+      "step-summary": "{\n  \"timestamp\": \"1780906303\",\n  \"namespace\": \"\",\n  \"successes\": 117,\n  \"failures\": 3,\n  \"warnings\": 3,\n  \"result\": \"FAILURE\"\n}\n",
+      "step-detailed-report": "\u2715 [Violation] tasks.required_untrusted_task_found\n  ImageRef: quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:08b6aec92a0e4abecb5e46f651c5817ca68150383735680011806af4dc72a0db\n  Reason: Required task \"sast-shell-check-oci-ta\" is required and present but not from a trusted task\n  Term: sast-shell-check-oci-ta\n  Title: All required tasks are from trusted tasks\n  Description: Ensure that the all required tasks are resolved from trusted tasks. To exclude this rule add\n  \"tasks.required_untrusted_task_found:sast-shell-check-oci-ta\" to the `exclude` section of the policy configuration.\n  Solution: Make sure all required tasks in the build pipeline are resolved from trusted tasks.\n\u2715 [Violation] tasks.required_untrusted_task_found\n  ImageRef: quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:08b6aec92a0e4abecb5e46f651c5817ca68150383735680011806af4dc72a0db\n  Reason: Required task \"sast-snyk-check-oci-ta\" is required and present but not from a trusted task\n  Term: sast-snyk-check-oci-ta\n  Title: All required tasks are from trusted tasks\n  Description: Ensure that the all required tasks are resolved from trusted tasks. To exclude this rule add\n  \"tasks.required_untrusted_task_found:sast-snyk-check-oci-ta\" to the `exclude` section of the policy configuration.\n  Solution: Make sure all required tasks in the build pipeline are resolved from trusted tasks.\n\u2715 [Violation] tasks.required_untrusted_task_found\n  ImageRef: quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:08b6aec92a0e4abecb5e46f651c5817ca68150383735680011806af4dc72a0db\n  Reason: Required task \"sast-unicode-check-oci-ta\" is required and present but not from a trusted task\n  Term: sast-unicode-check-oci-ta\n  Title: All required tasks are from trusted tasks\n  Description: Ensure that the all required tasks are resolved from trusted tasks. To exclude this rule add\n  \"tasks.required_untrusted_task_found:sast-unicode-check-oci-ta\" to the `exclude` section of the policy configuration.\n  Solution: Make sure all required tasks in the build pipeline are resolved from trusted tasks.\n\u203a [Warning] tasks.pipeline_required_tasks_list_provided\n  ImageRef: quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:08b6aec92a0e4abecb5e46f651c5817ca68150383735680011806af4dc72a0db\n  Reason: Required tasks do not exist for pipeline\n  Title: Required tasks list for pipeline was provided\n  Description: Produce a warning if the required tasks list rule data was not provided.\n  Solution: The required task list is contained as https://conforma.dev/docs/cli/configuration.html#_data_sources under the key\n  'required-tasks'. Make sure this list exists.\n\u203a [Warning] test.no_failed_informative_tests\n  ImageRef: quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:08b6aec92a0e4abecb5e46f651c5817ca68150383735680011806af4dc72a0db\n  Reason: The Task \"coverity-availability-check\" from the build Pipeline reports a failed informative test\n  Term: coverity-availability-check\n  Title: No informative tests failed\n  Description: Produce a warning if any informative tests have their result set to \"FAILED\". The result type is configurable by\n  the \"failed_tests_results\" key, and the list of informative tests is configurable by the \"informative_tests\" key in the rule\n  data.\n  Solution: There is a test that failed. Make sure that any task in the build pipeline with a result named 'TEST_OUTPUT' does not\n  fail. More information about the test should be available in the logs for the build Pipeline.\n\u203a [Warning] trusted_task.tagged\n  ImageRef: quay.io/redhat-user-workloads/calunga-tenant/calunga-v2-index-main@sha256:08b6aec92a0e4abecb5e46f651c5817ca68150383735680011806af4dc72a0db\n  Reason: Pipeline task \"build-wheels\" uses an untagged task reference,\n  oci://quay.io/redhat-user-workloads/calunga-tenant/task-build-python-wheels@sha256:6b19df39c8dbc4f568e7fd5e6b6f2636350f67fddd036336402f6e3cb72b5bbf\n  Term: build-python-wheels-oci-ta\n  Title: Task references are tagged\n  Description: Check if all Tekton Tasks defined with the bundle format contain a tag reference.\n  Solution: Update the Pipeline definition so that all Task references have a tagged value as mentioned in the description.\nFor more information about policy issues, see the policy documentation: https://conforma.dev/docs/policy/\n",
+      "step-assert": "false\n"
+    }
+  }
+}

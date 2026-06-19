@@ -19,7 +19,7 @@ RELEASE_PLAN = os.environ.get("RELEASE_PLAN", "calunga")
 AI_ANALYSIS_ENABLED = os.environ.get("AI_ANALYSIS_ENABLED", "false").lower() == "true"
 GOOGLE_CLOUD_PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
 GOOGLE_CLOUD_REGION = os.environ.get("GOOGLE_CLOUD_REGION", "global")
-AI_MODEL = os.environ.get("AI_MODEL", "claude-sonnet-4-6")
+AI_MODEL = os.environ.get("AI_MODEL", "claude-haiku-4-5")
 AI_MAX_LOG_LINES = int(os.environ.get("AI_MAX_LOG_LINES", "200"))
 AI_TIMEOUT_SECONDS = int(os.environ.get("AI_TIMEOUT_SECONDS", "30"))
 

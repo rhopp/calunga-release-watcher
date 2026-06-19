@@ -282,7 +282,7 @@ def _build_context(body: dict, info, detail: str) -> str:
 # Failed scenario extraction (from Snapshot annotation)
 # ---------------------------------------------------------------------------
 
-FAILED_TEST_STATUSES = {"TestFailed", "EnvironmentProvisionError", "DeploymentError"}
+FAILED_TEST_STATUSES = {"TestFail", "TestFailed", "EnvironmentProvisionError", "DeploymentError"}
 
 
 def extract_failed_scenarios(body: dict) -> list[str]:
@@ -335,8 +335,11 @@ def _call_claude(context: str, failure_state: str) -> FailureAnalysis | None:
         timeout=AI_TIMEOUT_SECONDS,
         output_config={
             "format": {
-                "type": "json",
-                "schema": FailureAnalysis.model_json_schema(),
+                "type": "json_schema",
+                "schema": {
+                    **FailureAnalysis.model_json_schema(),
+                    "additionalProperties": False,
+                },
             },
         },
     )
