@@ -10,6 +10,11 @@ SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", "")
 MAX_RETRIES = int(os.environ.get("MAX_RETRIES", "3"))
 STALL_TIMEOUT_MINUTES = int(os.environ.get("STALL_TIMEOUT_MINUTES", "30"))
 
+# Retry mechanism
+RETRY_ENABLED = os.environ.get("RETRY_ENABLED", "false").lower() == "true"
+RETRY_CONFIDENCE_THRESHOLD = os.environ.get("RETRY_CONFIDENCE_THRESHOLD", "medium")
+RELEASE_PLAN = os.environ.get("RELEASE_PLAN", "calunga")
+
 # AI failure analysis
 AI_ANALYSIS_ENABLED = os.environ.get("AI_ANALYSIS_ENABLED", "false").lower() == "true"
 GOOGLE_CLOUD_PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
@@ -31,6 +36,16 @@ LBL_EVENT_TYPE = "pac.test.appstudio.openshift.io/event-type"
 # Annotation keys shared across PAC resources
 ANN_SHA = "pac.test.appstudio.openshift.io/sha"
 ANN_SHA_TITLE = "pac.test.appstudio.openshift.io/sha-title"
+ANN_TEST_STATUS = "test.appstudio.openshift.io/status"
 
 # Also present as labels on all resources
 LBL_SHA = "pac.test.appstudio.openshift.io/sha"
+
+# Integration test / retry labels
+LBL_SCENARIO = "test.appstudio.openshift.io/scenario"
+LBL_ITS_RUN = "test.appstudio.openshift.io/run"
+
+# Release labels
+LBL_RELEASE_PLAN = "release.appstudio.openshift.io/releasePlan"
+LBL_RELEASE_SNAPSHOT = "release.appstudio.openshift.io/snapshot"
+LBL_AUTOMATED = "release.appstudio.openshift.io/automated"

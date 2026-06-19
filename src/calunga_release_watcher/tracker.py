@@ -15,19 +15,28 @@ class PipelineState(enum.Enum):
     BUILD_RUNNING = "build_running"
     BUILD_SUCCEEDED = "build_succeeded"
     BUILD_FAILED = "build_failed"
+    BUILD_RETRYING = "build_retrying"
     SNAPSHOT_CREATED = "snapshot_created"
     TESTING = "testing"
     TESTS_PASSED = "tests_passed"
     TESTS_FAILED = "tests_failed"
+    TESTS_RETRYING = "tests_retrying"
     RELEASING = "releasing"
     RELEASED = "released"
     RELEASE_FAILED = "release_failed"
+    RELEASE_RETRYING = "release_retrying"
 
 
 FAILURE_STATES = {
     PipelineState.BUILD_FAILED,
     PipelineState.TESTS_FAILED,
     PipelineState.RELEASE_FAILED,
+}
+
+RETRYING_STATES = {
+    PipelineState.BUILD_RETRYING,
+    PipelineState.TESTS_RETRYING,
+    PipelineState.RELEASE_RETRYING,
 }
 
 TERMINAL_STATES = FAILURE_STATES | {PipelineState.RELEASED}
@@ -47,6 +56,11 @@ class PipelineInfo:
     release: str = ""
     release_pipelinerun: str = ""
     last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    # Retry tracking
+    build_retry_count: int = 0
+    test_retry_counts: dict[str, int] = field(default_factory=dict)
+    release_retry_count: int = 0
+    failure_thread_ts: str = ""
 
     @property
     def log_prefix(self) -> str:
@@ -90,13 +104,15 @@ def get_named_condition(body: dict, condition_type: str) -> tuple[str | None, st
     return None, None
 
 
-def _fire_slack(message: str) -> None:
-    threading.Thread(target=send_slack_sync, args=(message,), daemon=True).start()
+def _fire_slack(message: str, thread_ts: str = "") -> None:
+    threading.Thread(target=send_slack_sync, args=(message, thread_ts), daemon=True).start()
 
 
-def _fire_failure_notification(
-    body: dict | None, info, state: "PipelineState", detail: str,
+def _handle_failure(
+    body: dict | None, info: "PipelineInfo", state: "PipelineState", detail: str,
 ) -> None:
+    from calunga_release_watcher.retrier import attempt_retry
+
     def _worker():
         analysis = None
         if body is not None:
@@ -110,7 +126,25 @@ def _fire_failure_notification(
         slack_msg = f"❌ {info.package_title} (sha={info.sha_short}) — {detail}"
         if analysis:
             slack_msg += format_analysis(analysis)
-        send_slack_sync(slack_msg)
+        ts = send_slack_sync(slack_msg)
+        if ts:
+            info.failure_thread_ts = ts
+
+        if analysis is None or body is None:
+            return
+
+        retried, retry_msg = attempt_retry(analysis, state, body, info)
+        if retried:
+            info.state = {
+                PipelineState.BUILD_FAILED: PipelineState.BUILD_RETRYING,
+                PipelineState.TESTS_FAILED: PipelineState.TESTS_RETRYING,
+                PipelineState.RELEASE_FAILED: PipelineState.RELEASE_RETRYING,
+            }.get(state, state)
+            info.last_updated = datetime.now(timezone.utc)
+        if retry_msg:
+            logger.info("%s %s", info.log_prefix, retry_msg)
+            if info.failure_thread_ts:
+                send_slack_sync(retry_msg, info.failure_thread_ts)
 
     threading.Thread(target=_worker, daemon=True).start()
 
@@ -174,6 +208,8 @@ class PipelineTracker:
             return
         if old_state in TERMINAL_STATES:
             return
+        if old_state in RETRYING_STATES and new_state in FAILURE_STATES:
+            return
         info.state = new_state
         info.last_updated = datetime.now(timezone.utc)
 
@@ -186,13 +222,17 @@ class PipelineTracker:
 
         if new_state in FAILURE_STATES:
             logger.error(msg)
-            _fire_failure_notification(body, info, new_state, detail)
+            _handle_failure(body, info, new_state, detail)
         elif new_state == PipelineState.RELEASED:
             logger.info(msg)
-            _fire_slack(
+            release_msg = (
                 f"✅ {info.package_title} (sha={info.sha_short}) — pipeline complete. "
                 f"Released via {info.release_pipelinerun}."
             )
+            if info.failure_thread_ts:
+                send_slack_sync(release_msg, info.failure_thread_ts)
+            else:
+                _fire_slack(release_msg)
         else:
             logger.info(msg)
 

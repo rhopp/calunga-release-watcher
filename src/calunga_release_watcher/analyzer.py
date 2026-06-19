@@ -1,8 +1,8 @@
+import json
 import logging
-import os
-from dataclasses import dataclass
+from typing import Literal
 
-import kubernetes
+from pydantic import BaseModel
 from kubernetes import client as k8s_client
 
 from anthropic import AnthropicVertex
@@ -12,11 +12,13 @@ from calunga_release_watcher.config import (
     AI_MODEL,
     AI_TIMEOUT_SECONDS,
     AI_ANALYSIS_ENABLED,
+    ANN_TEST_STATUS,
     GOOGLE_CLOUD_PROJECT,
     GOOGLE_CLOUD_REGION,
     LBL_PIPELINE_TYPE,
     LBL_SNAPSHOT,
 )
+from calunga_release_watcher.k8s import get_k8s_client
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +38,7 @@ broken build scripts)
 (cluster issues, storage problems, node failures, certificate expiration, OOM kills)
 - "unknown": Insufficient information to determine the cause
 
-Respond in EXACTLY this format with no additional text:
-CLASSIFICATION: <fluke|real|infra|unknown>
-CONFIDENCE: <high|medium|low>
-FAILED_TASK: <name of the failed Tekton task, or "unknown">
-ROOT_CAUSE: <1-2 sentence explanation of what went wrong>
-SUGGESTION: <1 sentence actionable recommendation, or "none">\
+Provide your analysis as structured JSON.\
 """
 
 USER_PROMPT_TEMPLATE = """\
@@ -56,40 +53,13 @@ or an infrastructure problem?\
 """
 
 
-@dataclass
-class FailureAnalysis:
-    classification: str
-    confidence: str
+class FailureAnalysis(BaseModel):
+    classification: Literal["fluke", "real", "infra", "unknown"]
+    confidence: Literal["high", "medium", "low"]
     root_cause: str
     suggestion: str
     failed_task: str
-
-
-# ---------------------------------------------------------------------------
-# Kubernetes client (lazy singleton)
-# ---------------------------------------------------------------------------
-_api_client: k8s_client.ApiClient | None = None
-
-
-def _get_k8s_client() -> k8s_client.ApiClient:
-    global _api_client
-    if _api_client is not None:
-        return _api_client
-
-    token = os.environ.get("K8S_TOKEN", "")
-    server = os.environ.get("K8S_API_URL", "")
-
-    if token and server:
-        configuration = kubernetes.client.Configuration()
-        configuration.host = server
-        configuration.api_key = {"authorization": f"Bearer {token}"}
-        configuration.verify_ssl = False
-        _api_client = k8s_client.ApiClient(configuration)
-    else:
-        kubernetes.config.load_incluster_config()
-        _api_client = k8s_client.ApiClient()
-
-    return _api_client
+    failed_scenarios: list[str] = []
 
 
 # ---------------------------------------------------------------------------
@@ -102,7 +72,7 @@ def _get_child_taskruns(body: dict, namespace: str) -> list[dict]:
     if not child_refs:
         return []
 
-    api = k8s_client.CustomObjectsApi(_get_k8s_client())
+    api = k8s_client.CustomObjectsApi(get_k8s_client())
     taskruns = []
     for ref in child_refs:
         if ref.get("kind") != "TaskRun":
@@ -122,7 +92,7 @@ def _get_child_taskruns(body: dict, namespace: str) -> list[dict]:
 
 
 def _get_test_pipelineruns_for_snapshot(snapshot_name: str, namespace: str) -> list[dict]:
-    api = k8s_client.CustomObjectsApi(_get_k8s_client())
+    api = k8s_client.CustomObjectsApi(get_k8s_client())
     try:
         result = api.list_namespaced_custom_object(
             group="tekton.dev",
@@ -153,7 +123,7 @@ def _get_pod_logs(taskrun: dict, namespace: str, max_lines: int) -> dict[str, st
     if not pod_name:
         return {}
 
-    core_v1 = k8s_client.CoreV1Api(_get_k8s_client())
+    core_v1 = k8s_client.CoreV1Api(get_k8s_client())
     logs: dict[str, str] = {}
 
     try:
@@ -309,24 +279,34 @@ def _build_context(body: dict, info, detail: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Claude invocation and response parsing
+# Failed scenario extraction (from Snapshot annotation)
 # ---------------------------------------------------------------------------
 
+FAILED_TEST_STATUSES = {"TestFailed", "EnvironmentProvisionError", "DeploymentError"}
 
-def _parse_response(text: str) -> FailureAnalysis:
-    lines = {}
-    for line in text.strip().split("\n"):
-        if ":" in line:
-            key, _, value = line.partition(":")
-            lines[key.strip().upper()] = value.strip()
 
-    return FailureAnalysis(
-        classification=lines.get("CLASSIFICATION", "unknown"),
-        confidence=lines.get("CONFIDENCE", "low"),
-        root_cause=lines.get("ROOT_CAUSE", "Unable to determine root cause"),
-        suggestion=lines.get("SUGGESTION", ""),
-        failed_task=lines.get("FAILED_TASK", "unknown"),
-    )
+def extract_failed_scenarios(body: dict) -> list[str]:
+    if body.get("kind") != "Snapshot":
+        return []
+    annotations = body.get("metadata", {}).get("annotations", {})
+    raw = annotations.get(ANN_TEST_STATUS, "")
+    if not raw:
+        return []
+    try:
+        statuses = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        logger.warning("Failed to parse test status annotation")
+        return []
+    return [
+        s["scenario"]
+        for s in statuses
+        if isinstance(s, dict) and s.get("status") in FAILED_TEST_STATUSES and s.get("scenario")
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Claude invocation and structured output
+# ---------------------------------------------------------------------------
 
 
 def _call_claude(context: str, failure_state: str) -> FailureAnalysis | None:
@@ -353,9 +333,15 @@ def _call_claude(context: str, failure_state: str) -> FailureAnalysis | None:
             },
         ],
         timeout=AI_TIMEOUT_SECONDS,
+        output_config={
+            "format": {
+                "type": "json",
+                "schema": FailureAnalysis.model_json_schema(),
+            },
+        },
     )
 
-    return _parse_response(response.content[0].text)
+    return FailureAnalysis.model_validate_json(response.content[0].text)
 
 
 # ---------------------------------------------------------------------------
@@ -372,7 +358,10 @@ def analyze_failure(body: dict, info, failure_state, detail: str) -> FailureAnal
         logger.info("No context gathered for AI analysis")
         return None
 
-    return _call_claude(context, failure_state.value)
+    analysis = _call_claude(context, failure_state.value)
+    if analysis is not None:
+        analysis.failed_scenarios = extract_failed_scenarios(body)
+    return analysis
 
 
 def format_analysis(analysis: FailureAnalysis) -> str:
