@@ -4,6 +4,8 @@ from calunga_release_watcher.analyzer import FailureAnalysis
 from calunga_release_watcher.retrier import (
     _meets_confidence_threshold,
     attempt_retry,
+    retry_release,
+    retry_test_scenarios,
     should_retry,
 )
 from calunga_release_watcher.tracker import PipelineInfo, PipelineState
@@ -163,3 +165,116 @@ class TestAttemptRetry:
         assert retried is False
         assert "Max retries" in msg
         assert "manual intervention" in msg
+
+
+# ---------------------------------------------------------------------------
+# retry_test_scenarios (mocked k8s)
+# ---------------------------------------------------------------------------
+
+
+class TestRetryTestScenarios:
+    @patch("calunga_release_watcher.retrier.get_k8s_client")
+    @patch("calunga_release_watcher.retrier.k8s_client")
+    def test_single_scenario(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+
+        info = make_pipeline_info()
+        result = retry_test_scenarios("snap-1", "ns", ["scenario-a"], info)
+        assert result == ["scenario-a"]
+        assert info.test_retry_counts["scenario-a"] == 1
+
+        patch_body = mock_api.patch_namespaced_custom_object.call_args[1]["body"]
+        assert patch_body["metadata"]["labels"]["test.appstudio.openshift.io/run"] == "scenario-a"
+
+    @patch("calunga_release_watcher.retrier.get_k8s_client")
+    @patch("calunga_release_watcher.retrier.k8s_client")
+    def test_multiple_scenarios_uses_all(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+
+        info = make_pipeline_info()
+        result = retry_test_scenarios("snap-1", "ns", ["s1", "s2"], info)
+        assert result == ["s1", "s2"]
+
+        patch_body = mock_api.patch_namespaced_custom_object.call_args[1]["body"]
+        assert patch_body["metadata"]["labels"]["test.appstudio.openshift.io/run"] == "all"
+
+    def test_empty_scenarios(self):
+        info = make_pipeline_info()
+        result = retry_test_scenarios("snap-1", "ns", [], info)
+        assert result == []
+
+    @patch("calunga_release_watcher.retrier.get_k8s_client")
+    @patch("calunga_release_watcher.retrier.k8s_client")
+    def test_k8s_exception_returns_empty(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+        mock_api.patch_namespaced_custom_object.side_effect = Exception("forbidden")
+
+        info = make_pipeline_info()
+        result = retry_test_scenarios("snap-1", "ns", ["s1"], info)
+        assert result == []
+
+
+# ---------------------------------------------------------------------------
+# retry_release (mocked k8s)
+# ---------------------------------------------------------------------------
+
+
+class TestRetryRelease:
+    @patch("calunga_release_watcher.retrier.get_k8s_client")
+    @patch("calunga_release_watcher.retrier.k8s_client")
+    @patch("calunga_release_watcher.retrier.RELEASE_PLAN", "calunga")
+    def test_creates_release(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+        mock_api.create_namespaced_custom_object.return_value = {
+            "metadata": {"name": "snap-1-retry-abc"},
+        }
+
+        original_body = {
+            "metadata": {
+                "labels": {
+                    "appstudio.openshift.io/application": "my-app",
+                    "appstudio.openshift.io/component": "my-comp",
+                    "pac.test.appstudio.openshift.io/sha": "abc123",
+                },
+            },
+        }
+        info = make_pipeline_info()
+        result = retry_release(original_body, "snap-1", "ns", info)
+        assert result == "snap-1-retry-abc"
+        assert info.release_retry_count == 1
+
+        create_body = mock_api.create_namespaced_custom_object.call_args[1]["body"]
+        assert create_body["spec"]["snapshot"] == "snap-1"
+        assert create_body["spec"]["releasePlan"] == "calunga"
+
+    @patch("calunga_release_watcher.retrier.get_k8s_client")
+    @patch("calunga_release_watcher.retrier.k8s_client")
+    def test_filters_empty_labels(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+        mock_api.create_namespaced_custom_object.return_value = {
+            "metadata": {"name": "retry-1"},
+        }
+
+        original_body = {"metadata": {"labels": {}}}
+        info = make_pipeline_info()
+        retry_release(original_body, "snap-1", "ns", info)
+
+        create_body = mock_api.create_namespaced_custom_object.call_args[1]["body"]
+        for v in create_body["metadata"]["labels"].values():
+            assert v != ""
+
+    @patch("calunga_release_watcher.retrier.get_k8s_client")
+    @patch("calunga_release_watcher.retrier.k8s_client")
+    def test_k8s_exception_returns_none(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+        mock_api.create_namespaced_custom_object.side_effect = Exception("conflict")
+
+        info = make_pipeline_info()
+        result = retry_release({}, "snap-1", "ns", info)
+        assert result is None

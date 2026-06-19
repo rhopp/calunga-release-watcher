@@ -1,9 +1,11 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
+from calunga_release_watcher.analyzer import FailureAnalysis
 from calunga_release_watcher.tracker import (
     PipelineInfo,
     PipelineState,
     PipelineTracker,
+    _handle_failure,
     extract_package_title,
     extract_sha,
     extract_snapshot_name,
@@ -398,3 +400,105 @@ class TestOnReleasePipelineRun:
         info = tracker.get(SHA)
         assert info.state == PipelineState.RELEASE_FAILED
         mock_handle.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# Live transition notifications
+# ---------------------------------------------------------------------------
+
+
+class TestTransitionLiveNotifications:
+    @patch("calunga_release_watcher.tracker._handle_failure")
+    @patch("calunga_release_watcher.tracker.send_slack_sync", return_value="")
+    @patch("calunga_release_watcher.tracker._fire_slack")
+    def test_released_sends_slack_new_thread(self, mock_fire, mock_send, mock_handle):
+        tracker = PipelineTracker()
+        tracker._live = True
+        info = make_pipeline_info(state=PipelineState.RELEASING, release_pipelinerun="ns/plr-1")
+        tracker._transition(info, PipelineState.RELEASED, "done")
+        assert info.state == PipelineState.RELEASED
+        mock_fire.assert_called_once()
+        assert "pipeline complete" in mock_fire.call_args[0][0]
+
+    @patch("calunga_release_watcher.tracker._handle_failure")
+    @patch("calunga_release_watcher.tracker.send_slack_sync", return_value="")
+    def test_released_replies_in_failure_thread(self, mock_send, mock_handle):
+        tracker = PipelineTracker()
+        tracker._live = True
+        info = make_pipeline_info(
+            state=PipelineState.RELEASING,
+            release_pipelinerun="ns/plr-1",
+            failure_thread_ts="1234.5678",
+        )
+        tracker._transition(info, PipelineState.RELEASED, "done")
+        mock_send.assert_called_once()
+        assert mock_send.call_args[0][1] == "1234.5678"
+
+    @patch("calunga_release_watcher.tracker._handle_failure")
+    @patch("calunga_release_watcher.tracker.send_slack_sync")
+    @patch("calunga_release_watcher.tracker._fire_slack")
+    def test_non_terminal_no_slack(self, mock_fire, mock_send, mock_handle):
+        tracker = PipelineTracker()
+        tracker._live = True
+        info = make_pipeline_info(state=PipelineState.BUILD_RUNNING)
+        tracker._transition(info, PipelineState.BUILD_SUCCEEDED, "ok")
+        mock_fire.assert_not_called()
+        mock_send.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# _handle_failure (call _worker synchronously)
+# ---------------------------------------------------------------------------
+
+
+class TestHandleFailure:
+    @patch("calunga_release_watcher.tracker.threading.Thread")
+    @patch("calunga_release_watcher.tracker.send_slack_sync", return_value="ts-123")
+    @patch("calunga_release_watcher.tracker.analyze_failure")
+    @patch("calunga_release_watcher.retrier.attempt_retry", return_value=(True, "retrying..."))
+    def test_analysis_success_with_retry(self, mock_retry, mock_analyze, mock_slack, mock_thread):
+        analysis = FailureAnalysis(
+            classification="fluke", confidence="high",
+            root_cause="timeout", suggestion="retry",
+            failed_task="build", failed_scenarios=[],
+        )
+        mock_analyze.return_value = analysis
+
+        info = make_pipeline_info(state=PipelineState.BUILD_FAILED)
+        body = make_body()
+
+        _handle_failure(body, info, PipelineState.BUILD_FAILED, "build failed")
+
+        mock_thread.assert_called_once()
+        worker = mock_thread.call_args[1]["target"]
+        worker()
+
+        assert info.failure_thread_ts == "ts-123"
+        mock_analyze.assert_called_once()
+        mock_retry.assert_called_once()
+
+    @patch("calunga_release_watcher.tracker.threading.Thread")
+    @patch("calunga_release_watcher.tracker.send_slack_sync", return_value="")
+    @patch("calunga_release_watcher.tracker.analyze_failure", side_effect=Exception("AI down"))
+    def test_analysis_exception_still_sends_slack(self, mock_analyze, mock_slack, mock_thread):
+        info = make_pipeline_info(state=PipelineState.BUILD_FAILED)
+        body = make_body()
+
+        _handle_failure(body, info, PipelineState.BUILD_FAILED, "build failed")
+        worker = mock_thread.call_args[1]["target"]
+        worker()
+
+        mock_slack.assert_called_once()
+        assert "build failed" in mock_slack.call_args[0][0]
+
+    @patch("calunga_release_watcher.tracker.threading.Thread")
+    @patch("calunga_release_watcher.tracker.send_slack_sync", return_value="ts-456")
+    def test_body_none_skips_analysis(self, mock_slack, mock_thread):
+        info = make_pipeline_info(state=PipelineState.BUILD_FAILED)
+
+        _handle_failure(None, info, PipelineState.BUILD_FAILED, "build failed")
+        worker = mock_thread.call_args[1]["target"]
+        worker()
+
+        mock_slack.assert_called_once()
+        assert info.failure_thread_ts == "ts-456"

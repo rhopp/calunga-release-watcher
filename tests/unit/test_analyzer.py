@@ -1,13 +1,22 @@
 import json
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from calunga_release_watcher.analyzer import (
     FailureAnalysis,
+    _build_context,
+    _build_pipelinerun_context,
+    _call_claude,
+    _get_child_taskruns,
+    _get_failed_taskruns,
+    _get_pod_logs,
+    _get_test_pipelineruns_for_snapshot,
     _truncate_context,
+    analyze_failure,
     extract_failed_scenarios,
     format_analysis,
-    _call_claude,
 )
+from calunga_release_watcher.tracker import PipelineInfo, PipelineState
 
 
 # ---------------------------------------------------------------------------
@@ -175,4 +184,318 @@ class TestCallClaude:
     @patch("calunga_release_watcher.analyzer.GOOGLE_CLOUD_PROJECT", "")
     def test_skips_when_no_project(self):
         result = _call_claude("context", "build_failed")
+        assert result is None
+
+
+# ---------------------------------------------------------------------------
+# _get_failed_taskruns (pure — no mock needed)
+# ---------------------------------------------------------------------------
+
+
+class TestGetFailedTaskruns:
+    def test_identifies_failed(self):
+        taskruns = [
+            {"status": {"conditions": [{"type": "Succeeded", "status": "False"}]}},
+            {"status": {"conditions": [{"type": "Succeeded", "status": "True"}]}},
+            {"status": {"conditions": [{"type": "Succeeded", "status": "False"}]}},
+        ]
+        result = _get_failed_taskruns(taskruns)
+        assert len(result) == 2
+
+    def test_no_failures(self):
+        taskruns = [
+            {"status": {"conditions": [{"type": "Succeeded", "status": "True"}]}},
+        ]
+        assert _get_failed_taskruns(taskruns) == []
+
+    def test_empty_list(self):
+        assert _get_failed_taskruns([]) == []
+
+    def test_no_conditions(self):
+        taskruns = [{"status": {}}]
+        assert _get_failed_taskruns(taskruns) == []
+
+
+# ---------------------------------------------------------------------------
+# _get_child_taskruns (mocked k8s)
+# ---------------------------------------------------------------------------
+
+
+class TestGetChildTaskruns:
+    @patch("calunga_release_watcher.analyzer.get_k8s_client")
+    @patch("calunga_release_watcher.analyzer.k8s_client")
+    def test_fetches_taskruns(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+        mock_api.get_namespaced_custom_object.return_value = {"metadata": {"name": "tr-1"}}
+
+        body = {
+            "status": {
+                "childReferences": [
+                    {"kind": "TaskRun", "name": "tr-1"},
+                ],
+            },
+        }
+        result = _get_child_taskruns(body, "ns")
+        assert len(result) == 1
+        assert result[0]["metadata"]["name"] == "tr-1"
+
+    @patch("calunga_release_watcher.analyzer.get_k8s_client")
+    @patch("calunga_release_watcher.analyzer.k8s_client")
+    def test_skips_non_taskrun_refs(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+
+        body = {
+            "status": {
+                "childReferences": [
+                    {"kind": "Run", "name": "run-1"},
+                ],
+            },
+        }
+        result = _get_child_taskruns(body, "ns")
+        assert result == []
+        mock_api.get_namespaced_custom_object.assert_not_called()
+
+    def test_no_child_refs(self):
+        body = {"status": {}}
+        assert _get_child_taskruns(body, "ns") == []
+
+    @patch("calunga_release_watcher.analyzer.get_k8s_client")
+    @patch("calunga_release_watcher.analyzer.k8s_client")
+    def test_handles_api_exception(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+        mock_api.get_namespaced_custom_object.side_effect = Exception("api error")
+
+        body = {"status": {"childReferences": [{"kind": "TaskRun", "name": "tr-1"}]}}
+        result = _get_child_taskruns(body, "ns")
+        assert result == []
+
+
+# ---------------------------------------------------------------------------
+# _get_test_pipelineruns_for_snapshot (mocked k8s)
+# ---------------------------------------------------------------------------
+
+
+class TestGetTestPipelinerunsForSnapshot:
+    @patch("calunga_release_watcher.analyzer.get_k8s_client")
+    @patch("calunga_release_watcher.analyzer.k8s_client")
+    def test_returns_items(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+        mock_api.list_namespaced_custom_object.return_value = {
+            "items": [{"metadata": {"name": "plr-1"}}, {"metadata": {"name": "plr-2"}}],
+        }
+        result = _get_test_pipelineruns_for_snapshot("snap-1", "ns")
+        assert len(result) == 2
+
+    @patch("calunga_release_watcher.analyzer.get_k8s_client")
+    @patch("calunga_release_watcher.analyzer.k8s_client")
+    def test_handles_exception(self, mock_k8s_mod, mock_get_client):
+        mock_api = MagicMock()
+        mock_k8s_mod.CustomObjectsApi.return_value = mock_api
+        mock_api.list_namespaced_custom_object.side_effect = Exception("api error")
+        result = _get_test_pipelineruns_for_snapshot("snap-1", "ns")
+        assert result == []
+
+
+# ---------------------------------------------------------------------------
+# _get_pod_logs (mocked k8s)
+# ---------------------------------------------------------------------------
+
+
+class TestGetPodLogs:
+    def test_no_pod_name(self):
+        taskrun = {"status": {}}
+        assert _get_pod_logs(taskrun, "ns", 100) == {}
+
+    @patch("calunga_release_watcher.analyzer.get_k8s_client")
+    @patch("calunga_release_watcher.analyzer.k8s_client")
+    def test_returns_logs(self, mock_k8s_mod, mock_get_client):
+        mock_core = MagicMock()
+        mock_k8s_mod.CoreV1Api.return_value = mock_core
+
+        container = SimpleNamespace(name="step-build")
+        pod = SimpleNamespace(
+            spec=SimpleNamespace(containers=[container], init_containers=[]),
+        )
+        mock_core.read_namespaced_pod.return_value = pod
+        mock_core.read_namespaced_pod_log.return_value = "build output here"
+
+        taskrun = {"status": {"podName": "pod-1"}}
+        result = _get_pod_logs(taskrun, "ns", 200)
+        assert "step-build" in result
+        assert result["step-build"] == "build output here"
+
+    @patch("calunga_release_watcher.analyzer.get_k8s_client")
+    @patch("calunga_release_watcher.analyzer.k8s_client")
+    def test_pod_read_failure(self, mock_k8s_mod, mock_get_client):
+        mock_core = MagicMock()
+        mock_k8s_mod.CoreV1Api.return_value = mock_core
+        mock_core.read_namespaced_pod.side_effect = Exception("not found")
+
+        taskrun = {"status": {"podName": "pod-1"}}
+        assert _get_pod_logs(taskrun, "ns", 100) == {}
+
+    @patch("calunga_release_watcher.analyzer.get_k8s_client")
+    @patch("calunga_release_watcher.analyzer.k8s_client")
+    def test_empty_log_skipped(self, mock_k8s_mod, mock_get_client):
+        mock_core = MagicMock()
+        mock_k8s_mod.CoreV1Api.return_value = mock_core
+
+        container = SimpleNamespace(name="step-build")
+        pod = SimpleNamespace(
+            spec=SimpleNamespace(containers=[container], init_containers=[]),
+        )
+        mock_core.read_namespaced_pod.return_value = pod
+        mock_core.read_namespaced_pod_log.return_value = ""
+
+        taskrun = {"status": {"podName": "pod-1"}}
+        result = _get_pod_logs(taskrun, "ns", 100)
+        assert result == {}
+
+
+# ---------------------------------------------------------------------------
+# _build_pipelinerun_context (mocked helpers)
+# ---------------------------------------------------------------------------
+
+
+class TestBuildPipelinerunContext:
+    @patch("calunga_release_watcher.analyzer._get_pod_logs", return_value={})
+    @patch("calunga_release_watcher.analyzer._get_child_taskruns")
+    def test_adds_condition_and_taskruns(self, mock_child, mock_logs):
+        failed_tr = {
+            "metadata": {"name": "tr-fail", "namespace": "ns"},
+            "status": {"conditions": [{"type": "Succeeded", "status": "False", "reason": "Failed", "message": "err"}]},
+        }
+        mock_child.return_value = [failed_tr]
+
+        plr = {
+            "metadata": {"name": "plr-1"},
+            "status": {
+                "conditions": [{"status": "False", "reason": "Failed", "message": "pipeline failed"}],
+                "childReferences": [{"name": "tr-fail", "pipelineTaskName": "build-step"}],
+            },
+        }
+        parts = []
+        _build_pipelinerun_context(plr, "ns", parts)
+
+        labels = [p[0] for p in parts]
+        assert any("plr-1" in l for l in labels)
+        assert any("build-step" in l for l in labels)
+
+    @patch("calunga_release_watcher.analyzer._get_pod_logs", return_value={"step-build": "log output"})
+    @patch("calunga_release_watcher.analyzer._get_child_taskruns")
+    def test_includes_pod_logs(self, mock_child, mock_logs):
+        tr = {
+            "metadata": {"name": "tr-1", "namespace": "ns"},
+            "status": {"conditions": [{"type": "Succeeded", "status": "False", "reason": "Failed", "message": ""}]},
+        }
+        mock_child.return_value = [tr]
+
+        plr = {
+            "metadata": {"name": "plr-1"},
+            "status": {"conditions": [], "childReferences": []},
+        }
+        parts = []
+        _build_pipelinerun_context(plr, "ns", parts)
+        assert any("log output" in p[1] for p in parts)
+
+
+# ---------------------------------------------------------------------------
+# _build_context (mocked helpers)
+# ---------------------------------------------------------------------------
+
+
+class TestBuildContext:
+    def test_no_namespace_returns_detail_only(self):
+        body = {"kind": "PipelineRun", "metadata": {"namespace": ""}}
+        info = SimpleNamespace(namespace="", log_prefix="[test]")
+        result = _build_context(body, info, "some failure")
+        assert "some failure" in result
+
+    @patch("calunga_release_watcher.analyzer._build_pipelinerun_context")
+    def test_pipelinerun_path(self, mock_build_plr):
+        body = {
+            "kind": "PipelineRun",
+            "metadata": {"name": "plr-1", "namespace": "ns"},
+            "status": {"conditions": [{"status": "False", "reason": "Failed", "message": "err"}]},
+        }
+        info = SimpleNamespace(namespace="ns", log_prefix="[test]")
+        result = _build_context(body, info, "build failed")
+        assert "build failed" in result
+        mock_build_plr.assert_called_once()
+
+    @patch("calunga_release_watcher.analyzer._build_pipelinerun_context")
+    @patch("calunga_release_watcher.analyzer._get_test_pipelineruns_for_snapshot")
+    def test_snapshot_path_with_failed_plrs(self, mock_get_plrs, mock_build_plr):
+        failed_plr = {
+            "metadata": {"name": "test-plr-1", "labels": {"test.appstudio.openshift.io/scenario": "scenario-a"}},
+            "status": {"conditions": [{"type": "Succeeded", "status": "False"}]},
+        }
+        passed_plr = {
+            "metadata": {"name": "test-plr-2", "labels": {}},
+            "status": {"conditions": [{"type": "Succeeded", "status": "True"}]},
+        }
+        mock_get_plrs.return_value = [failed_plr, passed_plr]
+
+        body = {"kind": "Snapshot", "metadata": {"name": "snap-1", "namespace": "ns"}, "status": {}}
+        info = SimpleNamespace(namespace="ns", log_prefix="[test]")
+        result = _build_context(body, info, "tests failed")
+        assert "1 failed" in result
+        assert "1 passed" in result
+        mock_build_plr.assert_called_once()
+
+    @patch("calunga_release_watcher.analyzer._get_test_pipelineruns_for_snapshot", return_value=[])
+    def test_snapshot_no_plrs(self, mock_get_plrs):
+        body = {"kind": "Snapshot", "metadata": {"name": "snap-1", "namespace": "ns"}, "status": {}}
+        info = SimpleNamespace(namespace="ns", log_prefix="[test]")
+        result = _build_context(body, info, "tests failed")
+        assert "No test PipelineRuns found" in result
+
+
+# ---------------------------------------------------------------------------
+# analyze_failure (integration of internal functions)
+# ---------------------------------------------------------------------------
+
+
+class TestAnalyzeFailure:
+    @patch("calunga_release_watcher.analyzer.AI_ANALYSIS_ENABLED", False)
+    def test_disabled(self):
+        result = analyze_failure({}, None, PipelineState.BUILD_FAILED, "detail")
+        assert result is None
+
+    @patch("calunga_release_watcher.analyzer._call_claude")
+    @patch("calunga_release_watcher.analyzer._build_context", return_value="some context")
+    @patch("calunga_release_watcher.analyzer.AI_ANALYSIS_ENABLED", True)
+    @patch("calunga_release_watcher.analyzer.GOOGLE_CLOUD_PROJECT", "proj")
+    def test_calls_claude_and_attaches_scenarios(self, mock_build, mock_claude):
+        mock_claude.return_value = FailureAnalysis(
+            classification="fluke", confidence="high",
+            root_cause="timeout", suggestion="retry",
+            failed_task="build", failed_scenarios=[],
+        )
+        body = {
+            "kind": "Snapshot",
+            "metadata": {
+                "annotations": {
+                    "test.appstudio.openshift.io/status": json.dumps([
+                        {"scenario": "s1", "status": "TestFailed"},
+                    ]),
+                },
+            },
+        }
+        info = SimpleNamespace(namespace="ns", log_prefix="[test]")
+        result = analyze_failure(body, info, PipelineState.TESTS_FAILED, "detail")
+        assert result is not None
+        assert result.failed_scenarios == ["s1"]
+        mock_claude.assert_called_once()
+
+    @patch("calunga_release_watcher.analyzer._build_context", return_value="   ")
+    @patch("calunga_release_watcher.analyzer.AI_ANALYSIS_ENABLED", True)
+    @patch("calunga_release_watcher.analyzer.GOOGLE_CLOUD_PROJECT", "proj")
+    def test_empty_context_returns_none(self, mock_build):
+        info = SimpleNamespace(namespace="ns", log_prefix="[test]")
+        result = analyze_failure({}, info, PipelineState.BUILD_FAILED, "detail")
         assert result is None
