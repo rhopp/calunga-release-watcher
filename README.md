@@ -5,7 +5,7 @@ A Kubernetes controller that watches the CI/CD pipeline lifecycle in
 notifications on failures and successful releases.
 
 When a pipeline fails, the controller can optionally run AI-powered
-failure analysis using Claude Sonnet via Google Vertex AI to classify
+failure analysis using Claude via Google Vertex AI to classify
 the failure and suggest next steps.
 
 The controller is **read-only** — it never creates or modifies Kubernetes
@@ -62,7 +62,7 @@ When `AI_ANALYSIS_ENABLED` is `true` and a pipeline fails, the analyzer:
    pod logs from failed containers)
 2. For test failures (detected via Snapshot), looks up all test
    PipelineRuns and aggregates results across all failed tests
-3. Sends the context to Claude Sonnet via Google Vertex AI
+3. Sends the context to Claude via Google Vertex AI
 4. Enriches the Slack notification with:
    - **Classification**: `fluke` (transient), `real` (genuine issue),
      `infra` (infrastructure), or `unknown`
@@ -82,6 +82,56 @@ src/calunga_release_watcher/
   tracker.py     — Core state machine: PipelineTracker, PipelineInfo, and helper functions
   slack.py       — Sends Slack notifications via the Slack Web API
   analyzer.py    — AI-powered failure analysis via Claude on Vertex AI
+  retrier.py     — Automatic retry logic for fluke failures
+  k8s.py         — Kubernetes client initialization
+```
+
+## Tests
+
+Install dev dependencies:
+
+```bash
+pip install -e '.[dev]'
+```
+
+### Unit tests
+
+Unit tests mock all external dependencies (Kubernetes API, Slack, Vertex AI)
+and run without any credentials or network access.
+
+```bash
+pytest tests/unit/ -v
+```
+
+With coverage report:
+
+```bash
+pytest tests/unit/ -v --cov=calunga_release_watcher --cov-report=term-missing
+```
+
+### E2E tests
+
+E2E tests exercise the full `analyze_failure` pipeline: they load real
+Kubernetes resource fixtures captured from kubearchive, mock the k8s API
+to serve this canned data, and send the assembled context to a **real
+Claude model via Vertex AI**. Assertions are soft — checking that the
+classification falls within an acceptable set rather than exact matching.
+
+Requirements:
+- `ANTHROPIC_VERTEX_PROJECT_ID` or `GOOGLE_CLOUD_PROJECT` env var set
+- `CLOUD_ML_REGION` env var (defaults to `global`)
+- Valid GCP credentials (`gcloud auth application-default login`)
+
+```bash
+pytest tests/e2e/ -v -m e2e
+```
+
+Without Vertex credentials, e2e tests are automatically skipped.
+
+### Running all tests
+
+```bash
+pytest tests/ -v
 ```
 
 ## Configuration
@@ -109,7 +159,7 @@ All configuration is via environment variables.
 | `AI_ANALYSIS_ENABLED` | `false` | Set to `true` to enable AI failure analysis |
 | `GOOGLE_CLOUD_PROJECT` | *(empty)* | GCP project ID for Vertex AI. Required when AI is enabled |
 | `GOOGLE_CLOUD_REGION` | `global` | GCP region for Vertex AI |
-| `AI_MODEL` | `claude-sonnet-4-6` | Anthropic model to use |
+| `AI_MODEL` | `claude-haiku-4-5` | Anthropic model to use |
 | `AI_MAX_LOG_LINES` | `200` | Maximum log lines to fetch per container |
 | `AI_TIMEOUT_SECONDS` | `30` | Timeout for AI API calls |
 | `GOOGLE_APPLICATION_CREDENTIALS` | *(unset)* | Path to GCP service account key file for Vertex AI auth |
