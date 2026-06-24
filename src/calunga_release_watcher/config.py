@@ -31,15 +31,18 @@ LBL_SNAPSHOT = "appstudio.openshift.io/snapshot"
 LBL_BUILD_PLR = "appstudio.openshift.io/build-pipelinerun"
 LBL_RELEASE_NAME = "release.appstudio.openshift.io/name"
 LBL_RELEASE_NS = "release.appstudio.openshift.io/namespace"
-LBL_EVENT_TYPE = "pac.test.appstudio.openshift.io/event-type"
+LBL_TEST_EVENT_TYPE = "pac.test.appstudio.openshift.io/event-type"
+LBL_BUILD_EVENT_TYPE = "pipelinesascode.tekton.dev/event-type"
+LBL_BUILD_SHA = "pipelinesascode.tekton.dev/sha"
+ANN_BUILD_SHA_TITLE = "pipelinesascode.tekton.dev/sha-title"
 
 # Annotation keys shared across PAC resources
-ANN_SHA = "pac.test.appstudio.openshift.io/sha"
-ANN_SHA_TITLE = "pac.test.appstudio.openshift.io/sha-title"
+ANN_TEST_SHA = "pac.test.appstudio.openshift.io/sha"
+ANN_TEST_SHA_TITLE = "pac.test.appstudio.openshift.io/sha-title"
 ANN_TEST_STATUS = "test.appstudio.openshift.io/status"
 
 # Also present as labels on all resources
-LBL_SHA = "pac.test.appstudio.openshift.io/sha"
+LBL_TEST_SHA = "pac.test.appstudio.openshift.io/sha"
 
 # Integration test / retry labels
 LBL_SCENARIO = "test.appstudio.openshift.io/scenario"

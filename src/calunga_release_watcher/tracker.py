@@ -5,7 +5,14 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 from calunga_release_watcher.analyzer import analyze_failure, format_analysis
-from calunga_release_watcher.config import ANN_SHA, ANN_SHA_TITLE, LBL_SHA, LBL_SNAPSHOT
+from calunga_release_watcher.config import (
+    ANN_BUILD_SHA_TITLE,
+    ANN_TEST_SHA,
+    ANN_TEST_SHA_TITLE,
+    LBL_BUILD_SHA,
+    LBL_SNAPSHOT,
+    LBL_TEST_SHA,
+)
 from calunga_release_watcher.slack import send_slack_sync
 
 logger = logging.getLogger(__name__)
@@ -70,13 +77,17 @@ class PipelineInfo:
 def extract_sha(body: dict) -> str | None:
     labels = body.get("metadata", {}).get("labels", {})
     annotations = body.get("metadata", {}).get("annotations", {})
-    return labels.get(LBL_SHA) or annotations.get(ANN_SHA)
+    return labels.get(LBL_TEST_SHA) or labels.get(LBL_BUILD_SHA) or annotations.get(ANN_TEST_SHA)
 
 
 def extract_package_title(body: dict) -> str:
     labels = body.get("metadata", {}).get("labels", {})
     annotations = body.get("metadata", {}).get("annotations", {})
-    title = labels.get(ANN_SHA_TITLE) or annotations.get(ANN_SHA_TITLE, "")
+    title = (
+        labels.get(ANN_TEST_SHA_TITLE)
+        or annotations.get(ANN_TEST_SHA_TITLE)
+        or annotations.get(ANN_BUILD_SHA_TITLE, "")
+    )
     title = title.split("\n")[0]
     if title.startswith("Automatic build "):
         title = title[len("Automatic build "):]
@@ -295,13 +306,14 @@ class PipelineTracker:
         info = self.get_or_create(sha, body)
         if info is None:
             return
+        prev_status = info.test_pipelineruns.get(name)
         info.test_pipelineruns[name] = status or "Unknown"
         info.namespace = body["metadata"]["namespace"]
 
         if info.state in (PipelineState.SNAPSHOT_CREATED, PipelineState.BUILD_SUCCEEDED):
             self._transition(info, PipelineState.TESTING, f"Test started: {scenario}")
 
-        if status == "True" and self._live:
+        if status == "True" and self._live and prev_status != "True":
             passed = sum(1 for s in info.test_pipelineruns.values() if s == "True")
             total = len(info.test_pipelineruns)
             logger.info(
@@ -311,7 +323,7 @@ class PipelineTracker:
                 passed,
                 total,
             )
-        elif status == "False" and self._live:
+        elif status == "False" and self._live and prev_status != "False":
             logger.warning(
                 "%s Test FAILED: %s (reason=%s) — waiting for Snapshot condition",
                 info.log_prefix, scenario, reason,
@@ -359,10 +371,11 @@ class PipelineTracker:
         info = self.get_or_create(sha, body)
         if info is None:
             return
+        already_tracked = info.release_pipelinerun == f"{namespace}/{name}"
         info.release_pipelinerun = f"{namespace}/{name}"
         info.namespace = namespace
 
-        if status is None and self._live:
+        if status is None and self._live and not already_tracked:
             logger.info(
                 "%s Release PipelineRun started: %s (%s)",
                 info.log_prefix,

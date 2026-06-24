@@ -8,7 +8,8 @@ import kopf
 from calunga_release_watcher.config import (
     APPLICATION,
     LBL_APPLICATION,
-    LBL_EVENT_TYPE,
+    LBL_BUILD_EVENT_TYPE,
+    LBL_TEST_EVENT_TYPE,
     LBL_PIPELINE_TYPE,
     LBL_RELEASE_NS,
     RELEASE_NAMESPACE,
@@ -23,6 +24,8 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)-5s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+logging.getLogger("kopf.objects").setLevel(logging.WARNING)
+logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 tracker = PipelineTracker()
@@ -42,7 +45,7 @@ def _delayed_set_live():
 # ---------------------------------------------------------------------------
 # Build PipelineRuns
 # ---------------------------------------------------------------------------
-BUILD_FILTER = {LBL_PIPELINE_TYPE: "build", LBL_APPLICATION: APPLICATION, LBL_EVENT_TYPE: "push"}
+BUILD_FILTER = {LBL_PIPELINE_TYPE: "build", LBL_APPLICATION: APPLICATION, LBL_BUILD_EVENT_TYPE: "push"}
 
 
 @kopf.on.event("tekton.dev", "v1", "pipelineruns", labels=BUILD_FILTER, when=_in_namespace(TENANT_NAMESPACE))
@@ -53,7 +56,7 @@ def on_build_pipelinerun(body, **_):
 # ---------------------------------------------------------------------------
 # Test PipelineRuns
 # ---------------------------------------------------------------------------
-TEST_FILTER = {LBL_PIPELINE_TYPE: "test", LBL_APPLICATION: APPLICATION, LBL_EVENT_TYPE: "push"}
+TEST_FILTER = {LBL_PIPELINE_TYPE: "test", LBL_APPLICATION: APPLICATION, LBL_TEST_EVENT_TYPE: "push"}
 
 
 @kopf.on.event("tekton.dev", "v1", "pipelineruns", labels=TEST_FILTER, when=_in_namespace(TENANT_NAMESPACE))
@@ -64,7 +67,7 @@ def on_test_pipelinerun(body, **_):
 # ---------------------------------------------------------------------------
 # Snapshots
 # ---------------------------------------------------------------------------
-SNAPSHOT_FILTER = {LBL_APPLICATION: APPLICATION, LBL_EVENT_TYPE: "push"}
+SNAPSHOT_FILTER = {LBL_APPLICATION: APPLICATION, LBL_TEST_EVENT_TYPE: "push"}
 
 
 @kopf.on.event("appstudio.redhat.com", "v1alpha1", "snapshots", labels=SNAPSHOT_FILTER, when=_in_namespace(TENANT_NAMESPACE))
@@ -75,7 +78,7 @@ def on_snapshot(body, **_):
 # ---------------------------------------------------------------------------
 # Releases
 # ---------------------------------------------------------------------------
-RELEASE_FILTER = {LBL_APPLICATION: APPLICATION, LBL_EVENT_TYPE: "push"}
+RELEASE_FILTER = {LBL_APPLICATION: APPLICATION, LBL_TEST_EVENT_TYPE: "push"}
 
 
 @kopf.on.event("appstudio.redhat.com", "v1alpha1", "releases", labels=RELEASE_FILTER, when=_in_namespace(TENANT_NAMESPACE))
